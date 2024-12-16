@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: CMPT276.Group22.ComprehensiveGameTest
+-------------------------------------------------------------------------------
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 16.23 s -- in CMPT276.Group22.ComprehensiveGameTest

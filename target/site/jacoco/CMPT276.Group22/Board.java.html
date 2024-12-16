@@ -1,0 +1,542 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Board.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Dungeon-Chef</a> &gt; <a href="index.source.html" class="el_package">CMPT276.Group22</a> &gt; <span class="el_source">Board.java</span></div><h1>Board.java</h1><pre class="source lang-java linenums">package CMPT276.Group22;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
+import java.util.List;
+
+/**
+ * Abstract base class for game boards implementing core game mechanics.
+ * Manages entity positioning, collision detection, and game loop functionality.
+ */
+public abstract class Board extends JPanel {
+    protected static final int CELL_SIZE = 40; // Adjusted for visibility
+    protected static final int GRID_WIDTH = 800 / CELL_SIZE;
+    protected static final int GRID_HEIGHT = 600 / CELL_SIZE;
+
+    protected int playerX, playerY;
+    protected int playerHealth;
+    protected Entity[][] grid;
+    protected List&lt;Ingredient&gt; ingredients;
+    protected List&lt;String&gt; collectedIngredients;
+    protected List&lt;Barrier&gt; barriers;
+    protected List&lt;StaticEnemy&gt; staticEnemies;
+    protected List&lt;MovingEnemy&gt; movingEnemies;
+    protected boolean isGameOver;
+    protected boolean isGameWon;
+    protected boolean isPaused;
+    protected GameBoard gameBoard;
+    protected HashMap&lt;String, Image&gt; images;
+    protected javax.swing.Timer enemyTimer;
+    protected int playerScore;
+    protected javax.swing.Timer bonusSpawnTimer;
+<span class="fc" id="L37">    protected boolean bonusCollected = false;</span>
+<span class="fc" id="L38">    protected Map&lt;String, Integer&gt; ingredientCounts = new HashMap&lt;&gt;();</span>
+    
+    /**
+     * Initializes a new game board with default size 800x600.
+     * Sets up game state, collections for entities, and input handling.
+     */
+<span class="fc" id="L44">    public Board() {</span>
+<span class="fc" id="L45">        this.setPreferredSize(new Dimension(800, 600));</span>
+<span class="fc" id="L46">        ingredients = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L47">        staticEnemies = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L48">        movingEnemies = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L49">        barriers = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L50">        images = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L51">        collectedIngredients = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L52">        playerScore = 0;</span>
+<span class="fc" id="L53">        initializeBoard();</span>
+<span class="fc" id="L54">        setFocusable(true);</span>
+<span class="fc" id="L55">        setFocusTraversalKeysEnabled(false);</span>
+<span class="fc" id="L56">        requestFocusInWindow(); // Ensure the board has focus to receive key events</span>
+<span class="fc" id="L57">        setupKeyListener();</span>
+<span class="fc" id="L58">    }</span>
+
+    private void initializeBoard() {
+<span class="fc" id="L61">        initializeGrid();</span>
+<span class="fc" id="L62">        loadBoardSpecificImages();</span>
+<span class="fc" id="L63">        initializePlayer();</span>
+<span class="fc" id="L64">        initializeWalls();</span>
+<span class="fc" id="L65">        initializeIngredients();</span>
+<span class="fc" id="L66">        initializeEnemies();</span>
+<span class="fc" id="L67">        initializeEnemyTimer();</span>
+<span class="fc" id="L68">        initializeBonusIngredientSpawner();</span>
+<span class="fc" id="L69">        initializeBarriers();</span>
+<span class="fc" id="L70">    }</span>
+    
+    public GameBoard getGameBoard() {
+<span class="nc" id="L73">        return gameBoard;</span>
+    }
+
+    protected void initializeGrid() {
+<span class="fc" id="L77">        grid = new Entity[GRID_HEIGHT][GRID_WIDTH];</span>
+<span class="fc" id="L78">    }</span>
+
+    protected void initializePlayer() {
+<span class="fc" id="L81">        playerX = 1;</span>
+<span class="fc" id="L82">        playerY = 1;</span>
+<span class="fc" id="L83">        playerHealth = 3; // Example starting health</span>
+<span class="fc" id="L84">    }</span>
+
+    protected void initializeWalls() {
+        // Add walls around the border
+<span class="fc bfc" id="L88" title="All 2 branches covered.">        for (int i = 0; i &lt; GRID_WIDTH; i++) {</span>
+<span class="fc" id="L89">            grid[0][i] = new Wall(new Coordinate(0, i));</span>
+<span class="fc" id="L90">            grid[GRID_HEIGHT - 1][i] = new Wall(new Coordinate(GRID_HEIGHT - 1, i));</span>
+        }
+<span class="fc bfc" id="L92" title="All 2 branches covered.">        for (int i = 0; i &lt; GRID_HEIGHT; i++) {</span>
+<span class="fc" id="L93">            grid[i][0] = new Wall(new Coordinate(i, 0));</span>
+<span class="fc" id="L94">            grid[i][GRID_WIDTH - 1] = new Wall(new Coordinate(i, GRID_WIDTH - 1));</span>
+        }
+<span class="fc" id="L96">    }</span>
+
+    /**
+     * Processes movement of enemy entities towards the player.
+     * Enemies move one cell per tick in the direction that minimizes distance to player.
+     * Checks for collisions with player after movement.
+     */
+    private void moveEnemies() {
+<span class="pc bpc" id="L104" title="2 of 4 branches missed.">        if (isGameOver || isGameWon) {</span>
+<span class="nc" id="L105">            enemyTimer.stop();</span>
+<span class="nc" id="L106">            return;</span>
+        }
+
+<span class="fc bfc" id="L109" title="All 2 branches covered.">        for (MovingEnemy enemy : movingEnemies) {</span>
+            // Store old position
+<span class="fc" id="L111">            int oldRow = enemy.getPosition().getRow();</span>
+<span class="fc" id="L112">            int oldCol = enemy.getPosition().getCol();</span>
+            
+            // Clear old position temporarily
+<span class="fc" id="L115">            grid[oldRow][oldCol] = null;</span>
+            
+            // Get possible moves towards player
+<span class="fc" id="L118">            List&lt;Coordinate&gt; possibleMoves = getPossibleMovesForEnemy(enemy, oldRow, oldCol);</span>
+            
+<span class="pc bpc" id="L120" title="1 of 2 branches missed.">            if (!possibleMoves.isEmpty()) {</span>
+                // Randomly select one of the possible moves that get closer to the player
+<span class="fc" id="L122">                Random rand = new Random();</span>
+<span class="fc" id="L123">                Coordinate newPos = possibleMoves.get(rand.nextInt(possibleMoves.size()));</span>
+<span class="fc" id="L124">                enemy.setPosition(newPos);</span>
+<span class="fc" id="L125">                grid[newPos.getRow()][newPos.getCol()] = enemy;</span>
+<span class="fc" id="L126">            } else {</span>
+                // If no moves available, stay in current position
+<span class="nc" id="L128">                enemy.setPosition(new Coordinate(oldRow, oldCol));</span>
+<span class="nc" id="L129">                grid[oldRow][oldCol] = enemy;</span>
+            }
+    
+            // Check for collision with player
+<span class="fc bfc" id="L133" title="All 2 branches covered.">            if (enemy.getPosition().equals(new Coordinate(playerY, playerX))) {</span>
+<span class="fc" id="L134">                handleEnemyCollision();</span>
+            }
+        }
+<span class="fc" id="L137">    }</span>
+
+    private List&lt;Coordinate&gt; getPossibleMovesForEnemy(MovingEnemy enemy, int currentRow, int currentCol) {
+<span class="fc" id="L140">        List&lt;Coordinate&gt; possibleMoves = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L141">        int playerRow = playerY;</span>
+<span class="fc" id="L142">        int playerCol = playerX;</span>
+        
+        // Check all four directions
+<span class="fc" id="L145">        int[][] directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}}; // up, down, left, right</span>
+        
+<span class="fc bfc" id="L147" title="All 2 branches covered.">        for (int[] dir : directions) {</span>
+<span class="fc" id="L148">            int newRow = currentRow + dir[0];</span>
+<span class="fc" id="L149">            int newCol = currentCol + dir[1];</span>
+            
+            // Check if move is valid and gets closer to player
+<span class="fc bfc" id="L152" title="All 2 branches covered.">            if (isValidEnemyMove(newRow, newCol)) {</span>
+                // Calculate distances
+<span class="fc" id="L154">                double currentDistance = getDistance(currentRow, currentCol, playerRow, playerCol);</span>
+<span class="fc" id="L155">                double newDistance = getDistance(newRow, newCol, playerRow, playerCol);</span>
+                
+                // Only add moves that get closer to the player
+<span class="fc bfc" id="L158" title="All 2 branches covered.">                if (newDistance &lt; currentDistance) {</span>
+<span class="fc" id="L159">                    possibleMoves.add(new Coordinate(newRow, newCol));</span>
+                }
+            }
+        }
+        
+        // If no moves get closer to player, consider all valid moves
+<span class="fc bfc" id="L165" title="All 2 branches covered.">        if (possibleMoves.isEmpty()) {</span>
+<span class="fc bfc" id="L166" title="All 2 branches covered.">            for (int[] dir : directions) {</span>
+<span class="fc" id="L167">                int newRow = currentRow + dir[0];</span>
+<span class="fc" id="L168">                int newCol = currentCol + dir[1];</span>
+<span class="fc bfc" id="L169" title="All 2 branches covered.">                if (isValidEnemyMove(newRow, newCol)) {</span>
+<span class="fc" id="L170">                    possibleMoves.add(new Coordinate(newRow, newCol));</span>
+                }
+            }
+        }
+        
+<span class="fc" id="L175">        return possibleMoves;</span>
+    }
+
+    private double getDistance(int row1, int col1, int row2, int col2) {
+<span class="fc" id="L179">        return Math.sqrt(Math.pow(row2 - row1, 2) + Math.pow(col2 - col1, 2));</span>
+    }
+
+    /**
+     * Checks for valid moves in the given direction for enemies.
+     * @param row current row position
+     * @param col current column position
+     * @return true if the move is valid (no walls/barriers/other entities)
+     */
+    private boolean isValidEnemyMove(int row, int col) {
+<span class="pc bpc" id="L189" title="2 of 4 branches missed.">        return row &gt;= 0 &amp;&amp; row &lt; GRID_HEIGHT &amp;&amp;</span>
+<span class="pc bpc" id="L190" title="2 of 4 branches missed.">               col &gt;= 0 &amp;&amp; col &lt; GRID_WIDTH &amp;&amp;</span>
+<span class="fc bfc" id="L191" title="All 2 branches covered.">               !(grid[row][col] instanceof Wall) &amp;&amp;</span>
+<span class="fc bfc" id="L192" title="All 2 branches covered.">               !(grid[row][col] instanceof Barrier) &amp;&amp;</span>
+<span class="fc bfc" id="L193" title="All 2 branches covered.">               !(grid[row][col] instanceof StaticEnemy) &amp;&amp;</span>
+<span class="fc bfc" id="L194" title="All 2 branches covered.">               !(grid[row][col] instanceof MovingEnemy) &amp;&amp;</span>
+<span class="fc bfc" id="L195" title="All 2 branches covered.">               !(grid[row][col] instanceof Ingredient);</span>
+    }
+
+    private void handleEnemyCollision() {
+<span class="fc" id="L199">        SoundManager.getInstance().playSound(&quot;enemy_hit&quot;);</span>
+<span class="fc" id="L200">        isGameOver = true;</span>
+<span class="pc bpc" id="L201" title="1 of 2 branches missed.">        if (gameBoard != null) {</span>
+<span class="nc" id="L202">            gameBoard.showGameOverDialog();</span>
+        }
+<span class="fc" id="L204">    }</span>
+
+    private void stopGame() {
+        // Stop enemy timer
+<span class="nc bnc" id="L208" title="All 2 branches missed.">        if (enemyTimer != null) {</span>
+<span class="nc" id="L209">            enemyTimer.stop();</span>
+        }
+        // Stop bonus ingredient spawner
+<span class="nc bnc" id="L212" title="All 2 branches missed.">        if (bonusSpawnTimer != null) {</span>
+<span class="nc" id="L213">            bonusSpawnTimer.stop();</span>
+        }
+        // Additional cleanup if necessary
+<span class="nc" id="L216">    }</span>
+
+    private void initializeEnemyTimer() {
+<span class="fc" id="L219">        enemyTimer = new javax.swing.Timer(500, e -&gt; {</span>
+<span class="fc bfc" id="L220" title="All 4 branches covered.">            if (!isPaused &amp;&amp; !isGameOver) {  // Only move if not paused</span>
+<span class="fc" id="L221">                moveEnemies();</span>
+<span class="fc" id="L222">                repaint();</span>
+            }
+<span class="fc" id="L224">        });</span>
+<span class="fc" id="L225">        enemyTimer.start();</span>
+<span class="fc" id="L226">    }</span>
+    
+
+    protected void setupKeyListener() {
+<span class="fc" id="L230">        addKeyListener(new KeyAdapter() {</span>
+            @Override
+            public void keyPressed(KeyEvent e) {
+<span class="pc bpc" id="L233" title="1 of 2 branches missed.">                if (e.getKeyCode() == KeyEvent.VK_P) {</span>
+<span class="pc bpc" id="L234" title="1 of 2 branches missed.">                    isPaused = !isPaused;</span>
+<span class="pc bpc" id="L235" title="1 of 2 branches missed.">                    if (gameBoard != null) {</span>
+<span class="nc bnc" id="L236" title="All 2 branches missed.">                        if (isPaused) {</span>
+<span class="nc" id="L237">                            gameBoard.pauseTimer();</span>
+<span class="nc" id="L238">                        } else {</span>
+<span class="nc" id="L239">                            gameBoard.resumeTimer();</span>
+                        }
+                    }
+<span class="fc" id="L242">                    return;</span>
+                }
+<span class="nc bnc" id="L244" title="All 4 branches missed.">                if (isGameOver || isPaused) return;</span>
+
+<span class="nc" id="L246">                int newX = playerX;</span>
+<span class="nc" id="L247">                int newY = playerY;</span>
+
+<span class="nc bnc" id="L249" title="All 5 branches missed.">                switch (e.getKeyCode()) {</span>
+                    case KeyEvent.VK_LEFT:
+<span class="nc" id="L251">                        newX--;</span>
+<span class="nc" id="L252">                        break;</span>
+                    case KeyEvent.VK_RIGHT:
+<span class="nc" id="L254">                        newX++;</span>
+<span class="nc" id="L255">                        break;</span>
+                    case KeyEvent.VK_UP:
+<span class="nc" id="L257">                        newY--;</span>
+<span class="nc" id="L258">                        break;</span>
+                    case KeyEvent.VK_DOWN:
+<span class="nc" id="L260">                        newY++;</span>
+                        break;
+                }
+
+<span class="nc bnc" id="L264" title="All 2 branches missed.">                if (isValidMove(newX, newY)) {</span>
+<span class="nc" id="L265">                    playerX = newX;</span>
+<span class="nc" id="L266">                    playerY = newY;</span>
+<span class="nc" id="L267">                    checkCollisions();</span>
+<span class="nc" id="L268">                    checkWinCondition();</span>
+<span class="nc bnc" id="L269" title="All 2 branches missed.">                    if (gameBoard != null) {</span>
+<span class="nc" id="L270">                        gameBoard.updateScoreDisplay();</span>
+                    }
+<span class="nc" id="L272">                    repaint();</span>
+                }
+<span class="nc" id="L274">            }</span>
+        });
+<span class="fc" id="L276">    }</span>
+
+    protected boolean isValidMove(int x, int y) {
+<span class="fc bfc" id="L279" title="All 4 branches covered.">        return x &gt;= 0 &amp;&amp; x &lt; GRID_WIDTH &amp;&amp;</span>
+<span class="fc bfc" id="L280" title="All 4 branches covered.">                y &gt;= 0 &amp;&amp; y &lt; GRID_HEIGHT &amp;&amp;</span>
+<span class="fc bfc" id="L281" title="All 2 branches covered.">                !(grid[y][x] instanceof Wall)&amp;&amp;</span>
+<span class="fc bfc" id="L282" title="All 2 branches covered.">                !(grid[y][x] instanceof Barrier);</span>
+    }
+
+    /**
+     * Handles collision detection between player and game entities.
+     * Processes ingredient collection and enemy encounters.
+     * Updates score and checks win conditions.
+     */
+    protected void checkCollisions() {
+        // Create safe copies of the collections to iterate over
+<span class="fc" id="L292">        List&lt;Ingredient&gt; ingredientsCopy = new ArrayList&lt;&gt;(ingredients);</span>
+<span class="fc" id="L293">        List&lt;StaticEnemy&gt; staticEnemiesCopy = new ArrayList&lt;&gt;(staticEnemies);</span>
+        
+        // Create lists to store items to be removed
+<span class="fc" id="L296">        List&lt;Ingredient&gt; ingredientsToRemove = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L297">        List&lt;StaticEnemy&gt; enemiesToRemove = new ArrayList&lt;&gt;();</span>
+        
+        // Check ingredient collisions
+<span class="fc bfc" id="L300" title="All 2 branches covered.">        for (Ingredient ingredient : ingredientsCopy) {</span>
+<span class="pc bpc" id="L301" title="1 of 2 branches missed.">            if (ingredient.getPosition().equals(new Coordinate(playerY, playerX))) {</span>
+                // Play sound before handling collection
+<span class="pc bpc" id="L303" title="1 of 2 branches missed.">                if (ingredient instanceof BonusIngredient) {</span>
+<span class="nc" id="L304">                    SoundManager.getInstance().playSound(&quot;collect_bonus&quot;);</span>
+<span class="nc" id="L305">                } else {</span>
+<span class="fc" id="L306">                    SoundManager.getInstance().playSound(&quot;collect_ingredient&quot;);</span>
+                }
+<span class="fc" id="L308">                ingredient.onCollected(this);</span>
+<span class="fc" id="L309">                ingredientsToRemove.add(ingredient);</span>
+                // Clear the grid cell
+<span class="fc" id="L311">                grid[ingredient.getPosition().getRow()][ingredient.getPosition().getCol()] = null;</span>
+            }
+        }
+        
+        // Check static enemy collisions
+<span class="fc bfc" id="L316" title="All 2 branches covered.">        for (StaticEnemy enemy : staticEnemiesCopy) {</span>
+<span class="pc bpc" id="L317" title="1 of 2 branches missed.">            if (enemy.getPosition().equals(new Coordinate(playerY, playerX))) {</span>
+<span class="fc" id="L318">                SoundManager.getInstance().playSound(&quot;enemy_hit&quot;);  // Add this line</span>
+<span class="fc" id="L319">                applyPenalty(enemy);</span>
+<span class="fc" id="L320">                enemiesToRemove.add(enemy);</span>
+                // Clear the grid cell
+<span class="fc" id="L322">                grid[enemy.getPosition().getRow()][enemy.getPosition().getCol()] = null;</span>
+            }
+        }
+        
+        // Synchronize access to the original lists when removing items
+<span class="fc" id="L327">        synchronized(this) {</span>
+<span class="fc" id="L328">            ingredients.removeAll(ingredientsToRemove);</span>
+<span class="fc" id="L329">            staticEnemies.removeAll(enemiesToRemove);</span>
+        }
+        
+        // Update ingredients panel
+<span class="pc bpc" id="L333" title="1 of 2 branches missed.">        if (gameBoard != null) {</span>
+            // Update ingredient counts display
+<span class="fc" id="L335">            Map&lt;String, Integer&gt; collectedCounts = new HashMap&lt;&gt;();</span>
+<span class="fc bfc" id="L336" title="All 2 branches covered.">            for (String ingredient : collectedIngredients) {</span>
+<span class="fc" id="L337">                collectedCounts.merge(ingredient, 1, Integer::sum);</span>
+            }
+<span class="fc" id="L339">            gameBoard.updateIngredientDisplay(collectedCounts);</span>
+            
+            // Update recipe visualization
+<span class="fc" id="L342">            RecipeVisualizationPanel visPanel = gameBoard.getRecipeVisualizationPanel();</span>
+<span class="pc bpc" id="L343" title="1 of 2 branches missed.">            if (visPanel != null) {</span>
+                // Check each ingredient type for completion
+<span class="nc" id="L345">                List&lt;String&gt; requiredIngredients = getRequiredIngredients();</span>
+<span class="nc bnc" id="L346" title="All 2 branches missed.">                for (String ingredient : requiredIngredients) {</span>
+<span class="nc" id="L347">                    int collected = collectedCounts.getOrDefault(ingredient.toLowerCase(), 0);</span>
+<span class="nc" id="L348">                    int target = getTargetForIngredient(ingredient);</span>
+<span class="nc bnc" id="L349" title="All 2 branches missed.">                    visPanel.updateIngredientState(ingredient.toLowerCase(), collected &gt;= target);</span>
+                }
+                
+                // Update bonus state
+<span class="nc" id="L353">                visPanel.updateBonusState(bonusCollected);</span>
+            }
+        }
+        
+<span class="fc" id="L357">        checkWinCondition();</span>
+<span class="fc" id="L358">    }</span>
+
+    protected abstract int getTargetForIngredient(String ingredient);
+    
+
+    private void applyPenalty(StaticEnemy enemy) {
+<span class="fc" id="L364">        playerScore -= enemy.getPenaltyAmount();</span>
+<span class="pc bpc" id="L365" title="1 of 2 branches missed.">        if (gameBoard != null) {</span>
+<span class="fc" id="L366">            gameBoard.updateScoreDisplay();</span>
+        }
+<span class="pc bpc" id="L368" title="1 of 2 branches missed.">        if (playerScore &lt; 0) {</span>
+<span class="nc" id="L369">            isGameOver = true;</span>
+<span class="nc bnc" id="L370" title="All 2 branches missed.">            if (gameBoard != null) {</span>
+<span class="nc" id="L371">                gameBoard.showGameOverDialog();</span>
+            }
+        }
+<span class="fc" id="L374">    }</span>
+
+    /**
+     * Spawns a bonus ingredient at random location on the board.
+     * Bonus ingredients have higher value but disappear after a time limit.
+     * Only one bonus ingredient can exist at a time.
+     */
+    protected abstract void spawnBonusIngredient();
+    protected abstract void handleBonusCollection(Ingredient ingredient);
+
+    private void initializeBonusIngredientSpawner() {
+<span class="fc" id="L385">        int bonusSpawnInterval = 10000; // Every 10 seconds</span>
+<span class="fc" id="L386">        bonusSpawnTimer = new javax.swing.Timer(bonusSpawnInterval, e -&gt; {</span>
+<span class="fc bfc" id="L387" title="All 4 branches covered.">            if (!isPaused &amp;&amp; !isGameOver) {  // Only spawn if not paused</span>
+<span class="fc" id="L388">                spawnBonusIngredient();</span>
+            }
+<span class="fc" id="L390">        });</span>
+<span class="fc" id="L391">        bonusSpawnTimer.start();</span>
+<span class="fc" id="L392">    }</span>
+
+    public void removeIngredientFromGrid(Ingredient ingredient) {
+<span class="nc" id="L395">        grid[ingredient.getPosition().getRow()][ingredient.getPosition().getCol()] = null;</span>
+<span class="nc" id="L396">        repaint();</span>
+<span class="nc" id="L397">    }</span>
+    
+
+    protected void loadImage(String key, String path) {
+<span class="fc" id="L401">        try (InputStream imgStream = getClass().getResourceAsStream(path)) {</span>
+<span class="pc bpc" id="L402" title="1 of 2 branches missed.">            if (imgStream != null) {</span>
+<span class="fc" id="L403">                Image img = ImageIO.read(imgStream);</span>
+<span class="fc" id="L404">                images.put(key, img);</span>
+                // System.out.println(&quot;Loaded image: &quot; + path);
+            } 
+            // else {
+            //     System.err.println(&quot;Failed to load image: &quot; + path);
+            // }
+<span class="fc" id="L410">        } catch (IOException e) {</span>
+<span class="fc" id="L411">            System.err.println(&quot;IOException when loading image: &quot; + path);</span>
+<span class="fc" id="L412">            e.printStackTrace();</span>
+        }
+<span class="fc" id="L414">    }</span>
+    
+
+    public void setGameBoard(GameBoard gameBoard) {
+<span class="fc" id="L418">        this.gameBoard = gameBoard;</span>
+<span class="fc" id="L419">    }</span>
+
+    @Override
+    protected void paintComponent(Graphics g) {
+<span class="nc" id="L423">        super.paintComponent(g);</span>
+<span class="nc" id="L424">        drawBoard(g);</span>
+<span class="nc" id="L425">    }</span>
+
+    protected void drawBoard(Graphics g) {
+        // Draw background
+<span class="nc" id="L429">        g.drawImage(images.get(&quot;background&quot;), 0, 0, getWidth(), getHeight(), this);</span>
+    
+        // Draw all grid entities (includes ingredients, enemies, barriers, walls)
+<span class="nc bnc" id="L432" title="All 2 branches missed.">        for (int row = 0; row &lt; GRID_HEIGHT; row++) {</span>
+<span class="nc bnc" id="L433" title="All 2 branches missed.">            for (int col = 0; col &lt; GRID_WIDTH; col++) {</span>
+<span class="nc bnc" id="L434" title="All 2 branches missed.">                if (grid[row][col] != null) {</span>
+<span class="nc" id="L435">                    drawEntity(g, grid[row][col], row, col);</span>
+                }
+            }
+        }
+    
+        // Draw player
+<span class="nc" id="L441">        g.drawImage(images.get(&quot;player&quot;),</span>
+<span class="nc" id="L442">                playerX * CELL_SIZE,</span>
+<span class="nc" id="L443">                playerY * CELL_SIZE,</span>
+<span class="nc" id="L444">                CELL_SIZE,</span>
+<span class="nc" id="L445">                CELL_SIZE,</span>
+<span class="nc" id="L446">                this);</span>
+<span class="nc" id="L447">    }</span>
+
+    protected abstract void initializeBarriers();
+    
+
+    protected abstract void loadBoardSpecificImages();
+    protected abstract void initializeIngredients();
+    protected abstract void initializeEnemies();
+    
+    /**
+     * Checks if current game state satisfies win conditions.
+     * Win conditions vary by board type and required ingredients.
+     */
+    protected abstract void checkWinCondition();
+
+    protected abstract List&lt;String&gt; getRequiredIngredients();
+
+    public synchronized void increasePlayerScore(int value) {
+<span class="fc" id="L465">        playerScore += value;</span>
+<span class="fc" id="L466">    }    </span>
+
+    public synchronized void addCollectedIngredient(String ingredientName) {
+<span class="fc" id="L469">        collectedIngredients.add(ingredientName.toLowerCase());</span>
+<span class="fc" id="L470">        updateIngredientProgress();</span>
+<span class="fc" id="L471">        checkWinCondition();</span>
+<span class="fc" id="L472">    }</span>
+
+    public void removeIngredient(Ingredient ingredient) {
+<span class="fc" id="L475">        ingredients.remove(ingredient);</span>
+<span class="fc" id="L476">        grid[ingredient.getPosition().getRow()][ingredient.getPosition().getCol()] = null;</span>
+<span class="fc" id="L477">        repaint();</span>
+<span class="fc" id="L478">    }</span>
+
+    protected void collectIngredient(Ingredient ingredient) {
+<span class="nc" id="L481">        playerScore += ingredient.getValue();</span>
+        
+<span class="nc bnc" id="L483" title="All 2 branches missed.">        if (ingredient instanceof BonusIngredient) {</span>
+<span class="nc" id="L484">            handleBonusCollection(ingredient);  // Make sure this is called</span>
+<span class="nc" id="L485">            RecipeVisualizationPanel visPanel = gameBoard.getRecipeVisualizationPanel();</span>
+<span class="nc bnc" id="L486" title="All 2 branches missed.">            if (visPanel != null) {</span>
+<span class="nc" id="L487">                visPanel.updateBonusState(true);</span>
+            }
+<span class="nc" id="L489">            SoundManager.getInstance().playSound(&quot;collect_bonus&quot;);</span>
+<span class="nc" id="L490">        } else {</span>
+<span class="nc" id="L491">            SoundManager.getInstance().playSound(&quot;collect_ingredient&quot;);</span>
+        }
+        
+<span class="nc" id="L494">        ingredients.remove(ingredient);</span>
+<span class="nc" id="L495">        grid[ingredient.getPosition().getRow()][ingredient.getPosition().getCol()] = null;</span>
+<span class="nc" id="L496">        repaint();</span>
+<span class="nc" id="L497">    }</span>
+
+    protected void updateIngredientProgress() {
+<span class="fc bfc" id="L500" title="All 2 branches covered.">        if (gameBoard != null) {</span>
+<span class="fc" id="L501">            Map&lt;String, Integer&gt; collectedCounts = new HashMap&lt;&gt;();</span>
+<span class="fc bfc" id="L502" title="All 2 branches covered.">            for (String ingredient : collectedIngredients) {</span>
+<span class="fc" id="L503">                collectedCounts.merge(ingredient, 1, Integer::sum);</span>
+            }
+<span class="fc" id="L505">            gameBoard.updateIngredientDisplay(collectedCounts);</span>
+        }
+<span class="fc" id="L507">    }</span>
+
+    protected void drawEntity(Graphics g, Entity entity, int row, int col) {
+<span class="nc" id="L510">        Image image = null;</span>
+<span class="nc bnc" id="L511" title="All 2 branches missed.">        if (entity instanceof Wall) {</span>
+<span class="nc" id="L512">            image = images.get(&quot;wall&quot;);</span>
+<span class="nc bnc" id="L513" title="All 2 branches missed.">        } else if (entity instanceof Barrier) {</span>
+<span class="nc" id="L514">            image = images.get(&quot;barrier&quot;);</span>
+<span class="nc bnc" id="L515" title="All 2 branches missed.">        } else if (entity instanceof StaticEnemy) {</span>
+<span class="nc" id="L516">            image = images.get(&quot;staticEnemy&quot;);</span>
+<span class="nc bnc" id="L517" title="All 2 branches missed.">        } else if (entity instanceof MovingEnemy) {</span>
+<span class="nc" id="L518">            image = images.get(&quot;movingEnemy&quot;);</span>
+<span class="nc bnc" id="L519" title="All 2 branches missed.">        } else if (entity instanceof RegularIngredient) {</span>
+<span class="nc" id="L520">            String name = ((RegularIngredient) entity).getName();</span>
+<span class="nc" id="L521">            image = images.get(&quot;regularIngredient_&quot; + name.toLowerCase());</span>
+<span class="nc bnc" id="L522" title="All 2 branches missed.">        } else if (entity instanceof BonusIngredient) {</span>
+<span class="nc" id="L523">            image = images.get(&quot;bonusIngredient&quot;);</span>
+        }
+    
+<span class="nc bnc" id="L526" title="All 2 branches missed.">        if (image != null) {</span>
+<span class="nc" id="L527">            g.drawImage(image, col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE, this);</span>
+<span class="nc" id="L528">        } else {</span>
+<span class="nc" id="L529">            System.err.println(&quot;Image for entity is null at (&quot; + col + &quot;, &quot; + row + &quot;)&quot;);</span>
+        }
+<span class="nc" id="L531">    }</span>
+
+    protected void incrementIngredientCount(String ingredient) {
+<span class="fc" id="L534">        ingredientCounts.merge(ingredient.toLowerCase(), 1, Integer::sum);</span>
+<span class="fc" id="L535">    }</span>
+
+    protected int getIngredientCount(String ingredient) {
+<span class="nc" id="L538">        return ingredientCounts.getOrDefault(ingredient.toLowerCase(), 0);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

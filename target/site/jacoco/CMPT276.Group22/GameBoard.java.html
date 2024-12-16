@@ -1,0 +1,470 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GameBoard.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Dungeon-Chef</a> &gt; <a href="index.source.html" class="el_package">CMPT276.Group22</a> &gt; <span class="el_source">GameBoard.java</span></div><h1>GameBoard.java</h1><pre class="source lang-java linenums">package CMPT276.Group22;
+
+import javax.swing.*;
+import java.awt.*;
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * Main game board container managing game state, UI elements, and player interaction.
+ * Handles score tracking, timer management, and game completion states.
+ */
+public class GameBoard extends JFrame {
+<span class="fc" id="L13">    private static final Color BACKGROUND_COLOR = new Color(240, 240, 240);</span>
+<span class="fc" id="L14">    private static final Color TOP_PANEL_COLOR = new Color(50, 50, 50);</span>
+    private static final int STATS_PANEL_WIDTH = 200;
+    private static final int STATS_PANEL_HEIGHT = 100;
+    private static final int TOP_PANEL_HEIGHT = 40;
+<span class="fc" id="L18">    private static final Font STATS_FONT = new Font(&quot;Arial&quot;, Font.BOLD, 14);</span>
+<span class="fc" id="L19">    private static final Font INGREDIENT_FONT = new Font(&quot;Arial&quot;, Font.PLAIN, 11);</span>
+
+    private Board currentBoard;
+    private JPanel ingredientsPanel;
+    private JPanel gameStatsPanel;   
+    private JPanel topPanel;          
+    private JButton retryButton;
+    private JButton menuButton;
+    private JLabel timerLabel;
+    private JLabel scoreLabel;
+    private javax.swing.Timer gameTimer;
+    private JPanel ingredientTrackingPanel;
+    private int secondsElapsed;
+    private Map&lt;String, JLabel&gt; ingredientLabels;
+    private long startTime;
+<span class="fc" id="L34">    private boolean gameOverDialogShown = false;</span>
+
+    /**
+     * Creates new game window with specified board type.
+     * Initializes UI components, timer, and score tracking.
+     * @param boardType type of board to create (&quot;fire&quot;, &quot;ice&quot;, or &quot;earth&quot;)
+     */
+<span class="fc" id="L41">    public GameBoard(String boardType) {</span>
+<span class="fc" id="L42">        setTitle(&quot;Dungeon Chef&quot;);</span>
+<span class="fc" id="L43">        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);</span>
+<span class="fc" id="L44">        setLayout(new BorderLayout());</span>
+<span class="fc" id="L45">        setResizable(false);</span>
+    
+<span class="fc" id="L47">        ingredientLabels = new HashMap&lt;&gt;();</span>
+        
+<span class="nc" id="L49">        currentBoard = BoardFactory.createBoard(boardType);</span>
+<span class="nc bnc" id="L50" title="All 2 branches missed.">        if (currentBoard == null) {</span>
+<span class="nc" id="L51">            throw new IllegalStateException(&quot;Failed to create board of type: &quot; + boardType);</span>
+        }
+<span class="nc" id="L53">        currentBoard.setGameBoard(this);</span>
+    
+<span class="nc" id="L55">        initializeTopPanel();</span>
+<span class="nc" id="L56">        initializeGameStatsPanel();</span>
+<span class="nc" id="L57">        initializeIngredientsPanel();</span>
+<span class="nc" id="L58">        initializeTimer();</span>
+    
+<span class="nc" id="L60">        startTime = System.currentTimeMillis();</span>
+    
+<span class="nc" id="L62">        JPanel rightPanel = createRightPanel();</span>
+    
+<span class="nc" id="L64">        add(topPanel, BorderLayout.NORTH);</span>
+<span class="nc" id="L65">        add(currentBoard, BorderLayout.CENTER);</span>
+<span class="nc" id="L66">        add(rightPanel, BorderLayout.EAST);</span>
+    
+<span class="nc" id="L68">        pack();</span>
+<span class="nc" id="L69">        setLocationRelativeTo(null);</span>
+<span class="nc" id="L70">        setVisible(true);</span>
+<span class="nc" id="L71">        SwingUtilities.invokeLater(() -&gt; currentBoard.requestFocusInWindow());</span>
+<span class="nc" id="L72">    }</span>
+    
+    private void initializeTopPanel() {
+<span class="nc" id="L75">        topPanel = new JPanel();</span>
+<span class="nc" id="L76">        topPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 5));</span>
+<span class="nc" id="L77">        topPanel.setBackground(TOP_PANEL_COLOR);</span>
+<span class="nc" id="L78">        topPanel.setPreferredSize(new Dimension(getWidth(), TOP_PANEL_HEIGHT));</span>
+    
+        // Menu and retry buttons
+<span class="nc" id="L81">        menuButton = new JButton(&quot;Pause&quot;);</span>
+<span class="nc" id="L82">        menuButton.setFocusable(false);</span>
+<span class="nc" id="L83">        menuButton.addActionListener(e -&gt; showMenu());</span>
+    
+<span class="nc" id="L85">        retryButton = new JButton(&quot;Retry&quot;);</span>
+<span class="nc" id="L86">        retryButton.setFocusable(false);</span>
+<span class="nc" id="L87">        retryButton.addActionListener(e -&gt; resetGame());</span>
+<span class="nc" id="L88">        retryButton.setVisible(false);</span>
+    
+        // Add point information labels
+<span class="nc" id="L91">        JLabel pointsInfo = new JLabel();</span>
+<span class="nc" id="L92">        pointsInfo.setForeground(Color.WHITE);</span>
+        
+        // Set text based on board type
+<span class="nc bnc" id="L95" title="All 2 branches missed.">        if (currentBoard instanceof FireBoard) {</span>
+<span class="nc" id="L96">            pointsInfo.setText(&quot;  Points: Broth +10 | Chili +5 | Meat +7 | BONUS: Ice Tea +20 | Enemy -10&quot;);</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">        } else if (currentBoard instanceof IceBoard) {</span>
+<span class="nc" id="L98">            pointsInfo.setText(&quot;  Points: Banana +5 | Ice Cream +10 | Cherry +7 | Whip Cream +8 | BONUS: Milk Shake +20 | Enemy -10&quot;);</span>
+<span class="nc bnc" id="L99" title="All 2 branches missed.">        } else if (currentBoard instanceof EarthBoard) {</span>
+<span class="nc" id="L100">            pointsInfo.setText(&quot;  Points: Dal +7 | Potato +5 | Carrot +5 | Onion +5 | BONUS: Rice +20| Enemy -10&quot;);</span>
+        }
+    
+        // Add all components to the panel
+<span class="nc" id="L104">        topPanel.add(menuButton);</span>
+<span class="nc" id="L105">        topPanel.add(retryButton);</span>
+<span class="nc" id="L106">        topPanel.add(pointsInfo);</span>
+<span class="nc" id="L107">    }</span>
+    
+    private void initializeGameStatsPanel() {
+<span class="nc" id="L110">        gameStatsPanel = new JPanel();</span>
+<span class="nc" id="L111">        gameStatsPanel.setLayout(new BoxLayout(gameStatsPanel, BoxLayout.Y_AXIS));</span>
+<span class="nc" id="L112">        gameStatsPanel.setBorder(BorderFactory.createTitledBorder(&quot;Game Stats&quot;));</span>
+<span class="nc" id="L113">        gameStatsPanel.setBackground(BACKGROUND_COLOR);</span>
+
+<span class="nc" id="L115">        scoreLabel = new JLabel(&quot;Score: 0&quot;);</span>
+<span class="nc" id="L116">        timerLabel = new JLabel(&quot;Time: 0:00&quot;);</span>
+
+<span class="nc" id="L118">        scoreLabel.setFont(STATS_FONT);</span>
+<span class="nc" id="L119">        timerLabel.setFont(STATS_FONT);</span>
+        
+<span class="nc" id="L121">        scoreLabel.setAlignmentX(Component.CENTER_ALIGNMENT);</span>
+<span class="nc" id="L122">        timerLabel.setAlignmentX(Component.CENTER_ALIGNMENT);</span>
+
+<span class="nc" id="L124">        gameStatsPanel.add(Box.createVerticalStrut(5));</span>
+<span class="nc" id="L125">        gameStatsPanel.add(scoreLabel);</span>
+<span class="nc" id="L126">        gameStatsPanel.add(Box.createVerticalStrut(10));</span>
+<span class="nc" id="L127">        gameStatsPanel.add(timerLabel);</span>
+<span class="nc" id="L128">        gameStatsPanel.add(Box.createVerticalStrut(5));</span>
+
+<span class="nc" id="L130">        gameStatsPanel.setPreferredSize(new Dimension(STATS_PANEL_WIDTH, STATS_PANEL_HEIGHT));</span>
+<span class="nc" id="L131">    }</span>
+
+
+    private void initializeIngredientsPanel() {
+<span class="nc" id="L135">        ingredientsPanel = new JPanel();</span>
+<span class="nc" id="L136">        ingredientsPanel.setLayout(new BoxLayout(ingredientsPanel, BoxLayout.Y_AXIS));</span>
+<span class="nc" id="L137">        ingredientsPanel.setBorder(BorderFactory.createTitledBorder(&quot;Required Ingredients&quot;));</span>
+<span class="nc" id="L138">        ingredientsPanel.setBackground(BACKGROUND_COLOR);</span>
+        
+<span class="nc" id="L140">        JPanel ingredientTrackingPanel = new JPanel();</span>
+<span class="nc" id="L141">        ingredientTrackingPanel.setLayout(new BoxLayout(ingredientTrackingPanel, BoxLayout.Y_AXIS));</span>
+<span class="nc" id="L142">        ingredientTrackingPanel.setBackground(BACKGROUND_COLOR);</span>
+        
+<span class="nc" id="L144">        this.ingredientTrackingPanel = ingredientTrackingPanel;</span>
+        
+<span class="nc" id="L146">        RecipeVisualizationPanel recipeVisPanel = new RecipeVisualizationPanel(currentBoard);</span>
+        
+<span class="nc" id="L148">        ingredientTrackingPanel.setPreferredSize(new Dimension(STATS_PANEL_WIDTH, 150));</span>
+<span class="nc" id="L149">        ingredientTrackingPanel.setMaximumSize(new Dimension(STATS_PANEL_WIDTH, 150));</span>
+<span class="nc" id="L150">        ingredientsPanel.add(ingredientTrackingPanel);</span>
+        
+<span class="nc" id="L152">        ingredientsPanel.add(Box.createVerticalStrut(10));</span>
+<span class="nc" id="L153">        ingredientsPanel.add(recipeVisPanel);</span>
+        
+<span class="nc" id="L155">        ingredientsPanel.setPreferredSize(new Dimension(STATS_PANEL_WIDTH, 400));</span>
+<span class="nc" id="L156">    }</span>
+
+    private void updateTimerDisplay() {
+<span class="nc" id="L159">        int minutes = secondsElapsed / 60;</span>
+<span class="nc" id="L160">        int seconds = secondsElapsed % 60;</span>
+<span class="nc" id="L161">        timerLabel.setText(String.format(&quot;Time: %d:%02d&quot;, minutes, seconds));</span>
+<span class="nc" id="L162">    }</span>
+    
+    public void updateScoreDisplay() {
+<span class="nc" id="L165">        scoreLabel.setText(&quot;Score: &quot; + currentBoard.playerScore);</span>
+        // Remove the timer update from here since it's handled by the timer itself
+<span class="nc" id="L167">    }</span>
+    
+    private void initializeTimer() {
+<span class="nc" id="L170">        secondsElapsed = 0;</span>
+<span class="nc" id="L171">        gameTimer = new javax.swing.Timer(1000, e -&gt; {</span>
+<span class="nc" id="L172">            secondsElapsed++;</span>
+<span class="nc" id="L173">            updateTimerDisplay();</span>
+<span class="nc" id="L174">        });</span>
+<span class="nc" id="L175">        gameTimer.start();</span>
+<span class="nc" id="L176">    }</span>
+
+    private int elapsedTimeInSeconds() {
+<span class="nc" id="L179">        return secondsElapsed;</span>
+    }
+
+    /**
+     * Shows game completion dialog with final score and time.
+     * Stops game timer and prevents multiple dialog displays.
+     */
+    public void showGameOverDialog() {
+<span class="nc bnc" id="L187" title="All 2 branches missed.">        if (!gameOverDialogShown) {</span>
+<span class="nc" id="L188">            gameOverDialogShown = true;</span>
+            // Stop the game timer
+<span class="nc bnc" id="L190" title="All 2 branches missed.">            if (gameTimer != null) {</span>
+<span class="nc" id="L191">                gameTimer.stop();</span>
+            }
+
+            // Create a custom dialog
+<span class="nc" id="L195">            JDialog dialog = new JDialog(this, &quot;Game Over&quot;, true);</span>
+<span class="nc" id="L196">            dialog.setLayout(new BorderLayout());</span>
+
+            // Create message panel
+<span class="nc" id="L199">            JPanel messagePanel = new JPanel();</span>
+<span class="nc" id="L200">            messagePanel.setLayout(new BoxLayout(messagePanel, BoxLayout.Y_AXIS));</span>
+            
+            // Add game over message and stats
+<span class="nc bnc" id="L203" title="All 2 branches missed.">            String status = currentBoard.isGameWon ? &quot;You Win!&quot; : &quot;Game Over!&quot;;</span>
+<span class="nc" id="L204">            JLabel statusLabel = new JLabel(status);</span>
+<span class="nc" id="L205">            JLabel scoreLabel = new JLabel(&quot;Final Score: &quot; + currentBoard.playerScore);</span>
+<span class="nc" id="L206">            JLabel timeLabel = new JLabel(&quot;Time: &quot; + elapsedTimeInSeconds() + &quot; seconds&quot;);</span>
+            
+            // Center align the labels
+<span class="nc" id="L209">            statusLabel.setAlignmentX(Component.CENTER_ALIGNMENT);</span>
+<span class="nc" id="L210">            scoreLabel.setAlignmentX(Component.CENTER_ALIGNMENT);</span>
+<span class="nc" id="L211">            timeLabel.setAlignmentX(Component.CENTER_ALIGNMENT);</span>
+            
+            // Add some padding
+<span class="nc" id="L214">            messagePanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 10, 20));</span>
+            
+<span class="nc" id="L216">            messagePanel.add(statusLabel);</span>
+<span class="nc" id="L217">            messagePanel.add(Box.createRigidArea(new Dimension(0, 10)));</span>
+<span class="nc" id="L218">            messagePanel.add(scoreLabel);</span>
+<span class="nc" id="L219">            messagePanel.add(Box.createRigidArea(new Dimension(0, 10)));</span>
+<span class="nc" id="L220">            messagePanel.add(timeLabel);</span>
+
+            // Create button panel
+<span class="nc" id="L223">            JPanel buttonPanel = new JPanel();</span>
+<span class="nc" id="L224">            buttonPanel.setLayout(new FlowLayout());</span>
+            
+            // Create buttons
+<span class="nc" id="L227">            JButton restartButton = new JButton(&quot;Restart&quot;);</span>
+<span class="nc" id="L228">            JButton menuButton = new JButton(&quot;Main Menu&quot;);</span>
+            
+            // Add action listeners
+<span class="nc" id="L231">            restartButton.addActionListener(e -&gt; {</span>
+<span class="nc" id="L232">                dialog.dispose();</span>
+<span class="nc" id="L233">                resetGame();</span>
+<span class="nc" id="L234">                gameOverDialogShown = false;</span>
+<span class="nc" id="L235">            });</span>
+            
+<span class="nc" id="L237">            menuButton.addActionListener(e -&gt; {</span>
+<span class="nc" id="L238">                dialog.dispose();</span>
+<span class="nc" id="L239">                dispose(); // Close the game window</span>
+<span class="nc" id="L240">                new MainMenu().setVisible(true);</span>
+<span class="nc" id="L241">            });</span>
+            
+            // Add buttons to panel
+<span class="nc" id="L244">            buttonPanel.add(restartButton);</span>
+<span class="nc" id="L245">            buttonPanel.add(menuButton);</span>
+            
+            // Add panels to dialog
+<span class="nc" id="L248">            dialog.add(messagePanel, BorderLayout.CENTER);</span>
+<span class="nc" id="L249">            dialog.add(buttonPanel, BorderLayout.SOUTH);</span>
+            
+            // Set dialog properties
+<span class="nc" id="L252">            dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);</span>
+<span class="nc" id="L253">            dialog.setSize(300, 200);</span>
+<span class="nc" id="L254">            dialog.setLocationRelativeTo(this);</span>
+<span class="nc" id="L255">            dialog.setResizable(false);</span>
+            
+            // Show dialog
+<span class="nc" id="L258">            dialog.setVisible(true);</span>
+        }
+<span class="nc" id="L260">    }</span>
+
+    public void showRetryButton() {
+<span class="nc" id="L263">        gameTimer.stop();</span>
+<span class="nc" id="L264">        retryButton.setVisible(true);</span>
+
+        // Show game over message with time
+<span class="nc" id="L267">        showGameOverDialog();</span>
+<span class="nc" id="L268">    }</span>
+
+    private void resetGame() {
+        // Remove current board
+<span class="nc" id="L272">        remove(currentBoard);</span>
+    
+        // Create new board of same type
+<span class="nc" id="L275">        String boardType = getCurrentBoardType();</span>
+<span class="nc bnc" id="L276" title="All 4 branches missed.">        switch (boardType) {</span>
+            case &quot;fire&quot;:
+<span class="nc" id="L278">                SoundManager.getInstance().playBackgroundMusic(&quot;fire_music&quot;);</span>
+<span class="nc" id="L279">                break;</span>
+            case &quot;ice&quot;:
+<span class="nc" id="L281">                SoundManager.getInstance().playBackgroundMusic(&quot;ice_music&quot;);</span>
+<span class="nc" id="L282">                break;</span>
+            case &quot;earth&quot;:
+<span class="nc" id="L284">                SoundManager.getInstance().playBackgroundMusic(&quot;earth_music&quot;);</span>
+                break;
+        }
+<span class="nc" id="L287">        currentBoard = BoardFactory.createBoard(boardType);</span>
+<span class="nc" id="L288">        currentBoard.setGameBoard(this);</span>
+    
+        // Add new board
+<span class="nc" id="L291">        add(currentBoard, BorderLayout.CENTER);</span>
+    
+        // Clear and reinitialize tracking panel
+<span class="nc" id="L294">        ingredientTrackingPanel.removeAll();</span>
+    
+        // Reset game stats
+<span class="nc" id="L297">        secondsElapsed = 0;</span>
+<span class="nc" id="L298">        updateTimerDisplay();</span>
+<span class="nc" id="L299">        gameTimer.restart();</span>
+    
+        // Hide retry button
+<span class="nc" id="L302">        retryButton.setVisible(false);</span>
+    
+        // Create new recipe visualization panel
+<span class="nc" id="L305">        RecipeVisualizationPanel newRecipeVisPanel = new RecipeVisualizationPanel(currentBoard);</span>
+        
+        // Rebuild ingredients panel
+<span class="nc" id="L308">        ingredientsPanel.removeAll();</span>
+<span class="nc" id="L309">        ingredientsPanel.add(ingredientTrackingPanel);</span>
+<span class="nc" id="L310">        ingredientsPanel.add(Box.createVerticalStrut(10));</span>
+<span class="nc" id="L311">        ingredientsPanel.add(newRecipeVisPanel);</span>
+    
+        // Reset displays
+<span class="nc" id="L314">        updateScoreDisplay();</span>
+        
+        // Initialize ingredient display with empty counts
+<span class="nc" id="L317">        Map&lt;String, Integer&gt; emptyCollectedCounts = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L318">        updateIngredientDisplay(emptyCollectedCounts);</span>
+    
+        // Update layout
+<span class="nc" id="L321">        revalidate();</span>
+<span class="nc" id="L322">        repaint();</span>
+    
+        // Make sure board has focus
+<span class="nc" id="L325">        currentBoard.requestFocusInWindow();</span>
+<span class="nc" id="L326">    }</span>
+
+    private void showMenu() {
+<span class="nc" id="L329">        gameTimer.stop(); </span>
+<span class="nc" id="L330">        pauseTimer();</span>
+        
+<span class="nc bnc" id="L332" title="All 2 branches missed.">        if (currentBoard != null) {</span>
+<span class="nc" id="L333">            currentBoard.isPaused = true;</span>
+        }
+    
+<span class="nc" id="L336">        String[] options = {&quot;Resume&quot;, &quot;Restart&quot;, &quot;Main Menu&quot;, &quot;Exit&quot;};</span>
+<span class="nc" id="L337">        int choice = JOptionPane.showOptionDialog(this,</span>
+<span class="nc" id="L338">                &quot;Game Menu&quot;,</span>
+<span class="nc" id="L339">                &quot;Menu&quot;,</span>
+<span class="nc" id="L340">                JOptionPane.DEFAULT_OPTION,</span>
+<span class="nc" id="L341">                JOptionPane.PLAIN_MESSAGE,</span>
+<span class="nc" id="L342">                null,</span>
+<span class="nc" id="L343">                options,</span>
+<span class="nc" id="L344">                options[0]);</span>
+    
+<span class="nc bnc" id="L346" title="All 5 branches missed.">        switch (choice) {</span>
+            case 0: // Resume
+<span class="nc bnc" id="L348" title="All 2 branches missed.">                if (currentBoard != null) {</span>
+<span class="nc" id="L349">                    currentBoard.isPaused = false;  // Unpause the board</span>
+                }
+<span class="nc" id="L351">                gameTimer.start();</span>
+<span class="nc" id="L352">                resumeTimer();  // This will resume time counting</span>
+<span class="nc" id="L353">                break;</span>
+            case 1: // Restart
+<span class="nc" id="L355">                resetGame();</span>
+<span class="nc" id="L356">                break;</span>
+            case 2: // Main Menu
+<span class="nc" id="L358">                dispose(); // Close current game window</span>
+<span class="nc" id="L359">                new MainMenu().setVisible(true);</span>
+<span class="nc" id="L360">                break;</span>
+            case 3: // Exit
+<span class="nc" id="L362">                System.exit(0);</span>
+<span class="nc" id="L363">                break;</span>
+            default:  // If they close the dialog without selecting (X button)
+<span class="nc bnc" id="L365" title="All 2 branches missed.">                if (currentBoard != null) {</span>
+<span class="nc" id="L366">                    currentBoard.isPaused = false;  // Unpause the board</span>
+                }
+<span class="nc" id="L368">                gameTimer.start();</span>
+<span class="nc" id="L369">                resumeTimer();</span>
+                break;
+        }
+<span class="nc" id="L372">    }</span>
+
+    private String getCurrentBoardType() {
+<span class="nc bnc" id="L375" title="All 2 branches missed.">        return currentBoard instanceof FireBoard ? &quot;fire&quot; :</span>
+<span class="nc bnc" id="L376" title="All 2 branches missed.">               currentBoard instanceof IceBoard ? &quot;ice&quot; :</span>
+<span class="nc bnc" id="L377" title="All 2 branches missed.">               currentBoard instanceof EarthBoard ? &quot;earth&quot; : &quot;fire&quot;;</span>
+    }
+
+    public void pauseTimer() {
+<span class="nc" id="L381">        gameTimer.stop();</span>
+<span class="nc" id="L382">        SoundManager.getInstance().pauseBackgroundMusic();</span>
+<span class="nc" id="L383">    }</span>
+
+    public void resumeTimer() {
+<span class="nc" id="L386">        gameTimer.start();</span>
+<span class="nc" id="L387">        SoundManager.getInstance().resumeBackgroundMusic();</span>
+<span class="nc" id="L388">    }</span>
+
+    @Override
+    public void dispose() {
+<span class="nc" id="L392">        SoundManager.getInstance().stopBackgroundMusic();</span>
+<span class="nc" id="L393">        super.dispose();</span>
+<span class="nc" id="L394">    }</span>
+
+    /**
+     * Updates ingredient collection display with current counts.
+     * Shows progress towards required ingredient targets.
+     * @param collectedCounts map of ingredient names to collected quantities
+     */
+    public void updateIngredientDisplay(Map&lt;String, Integer&gt; collectedCounts) {
+        // Clear only the ingredient tracking panel, not the entire ingredients panel
+<span class="nc" id="L403">        ingredientTrackingPanel.removeAll();</span>
+        
+        // Add ingredient progress based on board type
+<span class="nc bnc" id="L406" title="All 2 branches missed.">        if (currentBoard instanceof FireBoard) {</span>
+<span class="nc" id="L407">            addIngredientLabel(&quot;Broth&quot;, collectedCounts.getOrDefault(&quot;broth&quot;, 0), FireBoard.BROTH_TARGET);</span>
+<span class="nc" id="L408">            addIngredientLabel(&quot;Chili&quot;, collectedCounts.getOrDefault(&quot;chili&quot;, 0), FireBoard.CHILI_TARGET);</span>
+<span class="nc" id="L409">            addIngredientLabel(&quot;Meat&quot;, collectedCounts.getOrDefault(&quot;meat&quot;, 0), FireBoard.MEAT_TARGET);</span>
+<span class="nc bnc" id="L410" title="All 2 branches missed.">        } else if (currentBoard instanceof IceBoard) {</span>
+<span class="nc" id="L411">            addIngredientLabel(&quot;Banana&quot;, collectedCounts.getOrDefault(&quot;banana&quot;, 0), IceBoard.BANANA_TARGET);</span>
+<span class="nc" id="L412">            addIngredientLabel(&quot;Ice Cream&quot;, collectedCounts.getOrDefault(&quot;icecream&quot;, 0), IceBoard.ICE_CREAM_TARGET);</span>
+<span class="nc" id="L413">            addIngredientLabel(&quot;Cherry&quot;, collectedCounts.getOrDefault(&quot;cherry&quot;, 0), IceBoard.CHERRY_TARGET);</span>
+<span class="nc" id="L414">            addIngredientLabel(&quot;Whip Cream&quot;, collectedCounts.getOrDefault(&quot;whipcream&quot;, 0), IceBoard.WHIP_CREAM_TARGET);</span>
+<span class="nc bnc" id="L415" title="All 2 branches missed.">        } else if (currentBoard instanceof EarthBoard) {</span>
+<span class="nc" id="L416">            addIngredientLabel(&quot;Dal&quot;, collectedCounts.getOrDefault(&quot;dal&quot;, 0), EarthBoard.DAL_TARGET);</span>
+<span class="nc" id="L417">            addIngredientLabel(&quot;Potato&quot;, collectedCounts.getOrDefault(&quot;potato&quot;, 0), EarthBoard.POTATO_TARGET);</span>
+<span class="nc" id="L418">            addIngredientLabel(&quot;Carrot&quot;, collectedCounts.getOrDefault(&quot;carrot&quot;, 0), EarthBoard.CARROT_TARGET);</span>
+<span class="nc" id="L419">            addIngredientLabel(&quot;Onion&quot;, collectedCounts.getOrDefault(&quot;onion&quot;, 0), EarthBoard.ONION_TARGET);</span>
+            // addIngredientLabel(&quot;Drumstick&quot;, collectedCounts.getOrDefault(&quot;drumstick&quot;, 0), EarthBoard.DRUMSTICK_TARGET);
+        }
+        
+        // Revalidate and repaint only the tracking panel
+<span class="nc" id="L424">        ingredientTrackingPanel.revalidate();</span>
+<span class="nc" id="L425">        ingredientTrackingPanel.repaint();</span>
+<span class="nc" id="L426">    }</span>
+    
+    private void addIngredientLabel(String name, int collected, int target) {
+<span class="nc" id="L429">        JLabel label = new JLabel(String.format(&quot;%s: %d/%d&quot;, name, collected, target));</span>
+<span class="nc" id="L430">        label.setFont(INGREDIENT_FONT);</span>
+<span class="nc" id="L431">        label.setAlignmentX(Component.CENTER_ALIGNMENT);</span>
+<span class="nc" id="L432">        ingredientTrackingPanel.add(label);</span>
+<span class="nc" id="L433">        ingredientTrackingPanel.add(Box.createVerticalStrut(3));</span>
+<span class="nc" id="L434">    }</span>
+
+    public RecipeVisualizationPanel getRecipeVisualizationPanel() {
+<span class="nc bnc" id="L437" title="All 2 branches missed.">        for (Component c : ingredientsPanel.getComponents()) {</span>
+<span class="nc bnc" id="L438" title="All 2 branches missed.">            if (c instanceof RecipeVisualizationPanel) {</span>
+<span class="nc" id="L439">                return (RecipeVisualizationPanel) c;</span>
+            }
+        }
+<span class="nc" id="L442">        return null;</span>
+    }
+    
+    public JPanel getIngredientTrackingPanel() {
+<span class="nc" id="L446">        return ingredientTrackingPanel;</span>
+    }
+
+    public int getSecondsElapsed() {
+<span class="nc" id="L450">        return secondsElapsed;</span>
+    }
+
+    public javax.swing.Timer getGameTimer() {
+<span class="nc" id="L454">        return gameTimer;</span>
+    }
+   
+    private JPanel createRightPanel() {
+<span class="nc" id="L458">        JPanel rightPanel = new JPanel();</span>
+<span class="nc" id="L459">        rightPanel.setLayout(new BorderLayout());</span>
+<span class="nc" id="L460">        rightPanel.setBackground(BACKGROUND_COLOR);</span>
+<span class="nc" id="L461">        rightPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));</span>
+        
+<span class="nc" id="L463">        rightPanel.add(gameStatsPanel, BorderLayout.NORTH);</span>
+<span class="nc" id="L464">        rightPanel.add(ingredientsPanel, BorderLayout.CENTER);</span>
+        
+<span class="nc" id="L466">        return rightPanel;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

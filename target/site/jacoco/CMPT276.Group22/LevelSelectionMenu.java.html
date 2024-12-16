@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LevelSelectionMenu.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Dungeon-Chef</a> &gt; <a href="index.source.html" class="el_package">CMPT276.Group22</a> &gt; <span class="el_source">LevelSelectionMenu.java</span></div><h1>LevelSelectionMenu.java</h1><pre class="source lang-java linenums">package CMPT276.Group22;
+
+import javax.swing.*;
+import java.awt.*;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+/**
+ * Level selection interface allowing players to choose between Fire, Ice, and Earth boards.
+ * Presents visual buttons for each level type and handles level initialization.
+ */
+public class LevelSelectionMenu extends JFrame {
+    private static final String BACKGROUND_IMAGE = &quot;/assets/character/MainMenu.png&quot;;
+    private static final int BUTTON_WIDTH = 200;
+    private static final int BUTTON_HEIGHT = 60;
+    private static final int SPACING = 10;
+
+<span class="fc" id="L19">    private final Map&lt;String, String&gt; boardTypeMap = new LinkedHashMap&lt;&gt;(Map.of(</span>
+<span class="fc" id="L20">            &quot;Level 1&quot;, &quot;fire&quot;,</span>
+<span class="fc" id="L21">            &quot;Level 2&quot;, &quot;ice&quot;,</span>
+<span class="fc" id="L22">            &quot;Level 3&quot;, &quot;earth&quot;</span>
+    ));
+
+<span class="fc" id="L25">    private final Map&lt;String, String&gt; musicMap = new LinkedHashMap&lt;&gt;(Map.of(</span>
+<span class="fc" id="L26">            &quot;Level 1&quot;, &quot;fire_music&quot;,</span>
+<span class="fc" id="L27">            &quot;Level 2&quot;, &quot;ice_music&quot;,</span>
+<span class="fc" id="L28">            &quot;Level 3&quot;, &quot;earth_music&quot;</span>
+    ));
+
+
+    private JPanel levelPanel;
+
+<span class="fc" id="L34">    public LevelSelectionMenu() {</span>
+<span class="fc" id="L35">        initializeFrame();</span>
+<span class="fc" id="L36">        initializeBackground();</span>
+<span class="fc" id="L37">        initializeLevelPanel();</span>
+<span class="fc" id="L38">    }</span>
+
+    private void initializeFrame() {
+<span class="fc" id="L41">        setTitle(&quot;Select Level&quot;);</span>
+<span class="fc" id="L42">        setResizable(false);</span>
+<span class="fc" id="L43">        setSize(800, 600);</span>
+<span class="fc" id="L44">        setLocationRelativeTo(null);</span>
+<span class="fc" id="L45">        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);</span>
+<span class="fc" id="L46">        setLayout(new BorderLayout());</span>
+<span class="fc" id="L47">    }</span>
+
+    private void initializeBackground() {
+<span class="fc" id="L50">        JLabel background = new JLabel(new ImageIcon(getClass().getResource(BACKGROUND_IMAGE)));</span>
+<span class="fc" id="L51">        background.setLayout(new BorderLayout());</span>
+<span class="fc" id="L52">        add(background);</span>
+
+<span class="fc" id="L54">        JPanel centerPanel = new JPanel(new GridBagLayout());</span>
+<span class="fc" id="L55">        centerPanel.setOpaque(false); // Transparent to show background</span>
+<span class="fc" id="L56">        background.add(centerPanel, BorderLayout.CENTER);</span>
+
+<span class="fc" id="L58">        levelPanel = new JPanel();</span>
+<span class="fc" id="L59">        levelPanel.setLayout(new BoxLayout(levelPanel, BoxLayout.Y_AXIS));</span>
+<span class="fc" id="L60">        levelPanel.setOpaque(false); // Transparent to show background</span>
+<span class="fc" id="L61">        centerPanel.add(levelPanel, new GridBagConstraints());</span>
+<span class="fc" id="L62">    }</span>
+    
+    
+
+    private void initializeLevelPanel() {
+<span class="fc" id="L67">        boardTypeMap.keySet().forEach(level -&gt; {</span>
+<span class="fc" id="L68">            JButton button = createLevelButton(level);</span>
+<span class="fc" id="L69">            levelPanel.add(button);</span>
+<span class="fc" id="L70">            levelPanel.add(Box.createRigidArea(new Dimension(0, SPACING))); // Add spacing</span>
+<span class="fc" id="L71">        });</span>
+<span class="fc" id="L72">    }</span>
+
+    private JButton createLevelButton(String level) {
+<span class="pc bpc" id="L75" title="1 of 4 branches missed.">        String imagePath = switch (level) {</span>
+<span class="fc" id="L76">            case &quot;Level 1&quot; -&gt; &quot;/assets/character/fire.png&quot;;</span>
+<span class="fc" id="L77">            case &quot;Level 2&quot; -&gt; &quot;/assets/character/ice1.png&quot;;</span>
+<span class="fc" id="L78">            case &quot;Level 3&quot; -&gt; &quot;/assets/character/earth.png&quot;;</span>
+<span class="nc" id="L79">            default -&gt; throw new IllegalArgumentException(&quot;Unknown level: &quot; + level);</span>
+        };
+
+<span class="fc" id="L82">        JButton button = createButtonWithImage(imagePath);</span>
+<span class="fc" id="L83">        button.addActionListener(e -&gt; startGame(level));</span>
+<span class="fc" id="L84">        return button;</span>
+    }
+
+    private JButton createButtonWithImage(String imagePath) {
+<span class="fc" id="L88">        ImageIcon icon = new ImageIcon(getClass().getResource(imagePath));</span>
+<span class="fc" id="L89">        Image scaledImage = icon.getImage().getScaledInstance(BUTTON_WIDTH, BUTTON_HEIGHT, Image.SCALE_SMOOTH);</span>
+<span class="fc" id="L90">        JButton button = new JButton(new ImageIcon(scaledImage));</span>
+<span class="fc" id="L91">        button.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));</span>
+<span class="fc" id="L92">        button.setFocusPainted(false); // Remove focus border</span>
+<span class="fc" id="L93">        button.setContentAreaFilled(false); // Transparent background</span>
+<span class="fc" id="L94">        button.setBorderPainted(false); // Remove button border</span>
+<span class="fc" id="L95">        return button;</span>
+    }
+
+    private void startGame(String level) {
+<span class="fc" id="L99">        SoundManager.getInstance().playSound(&quot;button_click&quot;);</span>
+
+<span class="fc" id="L101">        SwingUtilities.invokeLater(() -&gt; {</span>
+<span class="fc" id="L102">            String boardType = boardTypeMap.getOrDefault(level, &quot;fire&quot;);</span>
+<span class="fc" id="L103">            String music = musicMap.getOrDefault(level, &quot;fire_music&quot;);</span>
+
+<span class="fc" id="L105">            SoundManager.getInstance().playBackgroundMusic(music);</span>
+<span class="nc" id="L106">            GameBoard gameBoard = new GameBoard(boardType);</span>
+<span class="nc" id="L107">            gameBoard.setVisible(true);</span>
+<span class="nc" id="L108">            dispose();  // Close the level selection menu</span>
+<span class="nc" id="L109">        });</span>
+<span class="fc" id="L110">    }</span>
+
+    public JPanel getLevelPanel() {
+<span class="fc" id="L113">        return levelPanel;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

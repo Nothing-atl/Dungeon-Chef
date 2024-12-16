@@ -1,0 +1,37 @@
+-------------------------------------------------------------------------------
+Test set: CMPT276.Group22.IceBoardTest
+-------------------------------------------------------------------------------
+Tests run: 12, Failures: 0, Errors: 11, Skipped: 0, Time elapsed: 7.446 s <<< FAILURE! -- in CMPT276.Group22.IceBoardTest
+CMPT276.Group22.IceBoardTest.testCollectIngredient -- Time elapsed: 0.681 s <<< ERROR!
+java.lang.OutOfMemoryError: Java heap space
+
+CMPT276.Group22.IceBoardTest.testIngredientCollection -- Time elapsed: 0.603 s <<< ERROR!
+java.lang.OutOfMemoryError: Java heap space
+
+CMPT276.Group22.IceBoardTest.testCheckWinCondition -- Time elapsed: 1.105 s <<< ERROR!
+java.lang.OutOfMemoryError: Java heap space
+
+CMPT276.Group22.IceBoardTest.testGetTargetForIngredient -- Time elapsed: 0.550 s <<< ERROR!
+java.lang.OutOfMemoryError: Java heap space
+
+CMPT276.Group22.IceBoardTest.testBonusIngredientLifecycle -- Time elapsed: 0.841 s <<< ERROR!
+java.lang.OutOfMemoryError: Java heap space
+
+CMPT276.Group22.IceBoardTest.testInitializeIngredients -- Time elapsed: 0.497 s <<< ERROR!
+java.lang.OutOfMemoryError: Java heap space
+
+CMPT276.Group22.IceBoardTest.testInitializeBarriers -- Time elapsed: 0.513 s <<< ERROR!
+java.lang.OutOfMemoryError: Java heap space
+
+CMPT276.Group22.IceBoardTest.testSpawnBonusIngredient -- Time elapsed: 0.434 s <<< ERROR!
+java.lang.OutOfMemoryError: Java heap space
+
+CMPT276.Group22.IceBoardTest.testInitializeEnemies -- Time elapsed: 0.429 s <<< ERROR!
+java.lang.OutOfMemoryError: Java heap space
+
+CMPT276.Group22.IceBoardTest.testInitialState -- Time elapsed: 0.414 s <<< ERROR!
+java.lang.OutOfMemoryError: Java heap space
+
+CMPT276.Group22.IceBoardTest.testHandleBonusCollection -- Time elapsed: 0.427 s <<< ERROR!
+java.lang.OutOfMemoryError: Java heap space
+

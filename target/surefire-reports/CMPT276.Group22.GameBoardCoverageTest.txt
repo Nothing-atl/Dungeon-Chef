@@ -1,0 +1,28 @@
+-------------------------------------------------------------------------------
+Test set: CMPT276.Group22.GameBoardCoverageTest
+-------------------------------------------------------------------------------
+Tests run: 8, Failures: 0, Errors: 8, Skipped: 0, Time elapsed: 4.722 s <<< FAILURE! -- in CMPT276.Group22.GameBoardCoverageTest
+CMPT276.Group22.GameBoardCoverageTest.testGameStateTransitions -- Time elapsed: 0.477 s <<< ERROR!
+java.lang.OutOfMemoryError: Java heap space
+
+CMPT276.Group22.GameBoardCoverageTest.testScoreEdgeCases -- Time elapsed: 1.317 s <<< ERROR!
+java.lang.OutOfMemoryError: Java heap space
+
+CMPT276.Group22.GameBoardCoverageTest.testIngredientEdgeCases -- Time elapsed: 0.503 s <<< ERROR!
+java.lang.OutOfMemoryError: Java heap space
+
+CMPT276.Group22.GameBoardCoverageTest.testTimerEdgeCases -- Time elapsed: 0.549 s <<< ERROR!
+java.lang.OutOfMemoryError: Java heap space
+
+CMPT276.Group22.GameBoardCoverageTest.testBoardTypes -- Time elapsed: 0.416 s <<< ERROR!
+java.lang.OutOfMemoryError: Java heap space
+
+CMPT276.Group22.GameBoardCoverageTest.testTimerManagement -- Time elapsed: 0.414 s <<< ERROR!
+java.lang.OutOfMemoryError: Java heap space
+
+CMPT276.Group22.GameBoardCoverageTest.testIngredientTracking -- Time elapsed: 0.435 s <<< ERROR!
+java.lang.OutOfMemoryError: Java heap space
+
+CMPT276.Group22.GameBoardCoverageTest.testScoreManagement -- Time elapsed: 0.571 s <<< ERROR!
+java.lang.OutOfMemoryError: Java heap space
+

@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RecipeVisualizationPanel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Dungeon-Chef</a> &gt; <a href="index.source.html" class="el_package">CMPT276.Group22</a> &gt; <span class="el_source">RecipeVisualizationPanel.java</span></div><h1>RecipeVisualizationPanel.java</h1><pre class="source lang-java linenums">package CMPT276.Group22;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Displays a visual representation of a recipe within the game.
+ * Used for showing the ingredients and steps needed to complete a recipe.
+ */
+public class RecipeVisualizationPanel extends JPanel {
+    private static final int VERTICAL_GAP = 0;
+    private static final int BONUS_OFFSET = 15;
+    private static final int MAX_PANEL_WIDTH = 180;
+
+    private final Board currentBoard;
+<span class="fc" id="L23">    final Map&lt;String, Image&gt; overlayImages = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L24">    final Map&lt;String, Boolean&gt; ingredientCompleted = new HashMap&lt;&gt;();</span>
+    Image baseImage;
+    private Image bonusImage;
+    boolean bonusCollected;
+    private int imageWidth;
+    private int imageHeight;
+
+<span class="fc" id="L31">    public RecipeVisualizationPanel(Board board) {</span>
+<span class="fc" id="L32">        this.currentBoard = board;</span>
+<span class="fc" id="L33">        this.bonusCollected = false;</span>
+
+<span class="fc" id="L35">        setBackground(new Color(240, 240, 240));</span>
+<span class="fc" id="L36">        loadImages();</span>
+<span class="fc" id="L37">        setPreferredSize(new Dimension(MAX_PANEL_WIDTH, calculatePanelHeight()));</span>
+<span class="fc" id="L38">        setMaximumSize(new Dimension(MAX_PANEL_WIDTH, calculatePanelHeight()));</span>
+<span class="fc" id="L39">    }</span>
+
+    /**
+     * Loads images for the current board's recipe.
+     */
+    private void loadImages() {
+<span class="fc bfc" id="L45" title="All 2 branches covered.">        if (currentBoard instanceof FireBoard) {</span>
+<span class="fc" id="L46">            loadRecipeAssets(&quot;/assets/recipes/fire/&quot;, &quot;hotpot&quot;,</span>
+<span class="fc" id="L47">                    List.of(&quot;broth&quot;, &quot;chili&quot;, &quot;meat&quot;), &quot;ice_tea&quot;);</span>
+<span class="pc bpc" id="L48" title="1 of 2 branches missed.">        } else if (currentBoard instanceof IceBoard) {</span>
+<span class="fc" id="L49">            loadRecipeAssets(&quot;/assets/recipes/ice/&quot;, &quot;bananasplit&quot;,</span>
+<span class="fc" id="L50">                    List.of(&quot;banana&quot;, &quot;icecream&quot;, &quot;cherry&quot;, &quot;whipcream&quot;), &quot;milkshake&quot;);</span>
+<span class="pc bnc" id="L51" title="All 2 branches missed.">        } else if (currentBoard instanceof EarthBoard) {</span>
+<span class="nc" id="L52">            loadRecipeAssets(&quot;/assets/recipes/earth/&quot;, &quot;sambar&quot;,</span>
+<span class="nc" id="L53">                    List.of(&quot;dal&quot;, &quot;potato&quot;, &quot;carrot&quot;, &quot;onion&quot;, &quot;drumstick&quot;), &quot;rice&quot;);</span>
+        }
+<span class="fc" id="L55">    }</span>
+
+    /**
+     * Loads and scales all images for a given recipe.
+     */
+    private void loadRecipeAssets(String path, String recipeName, List&lt;String&gt; ingredients, String bonusName) {
+<span class="fc" id="L61">        baseImage = loadAndScaleImage(path + recipeName + &quot;_base.png&quot;);</span>
+
+<span class="fc bfc" id="L63" title="All 2 branches covered.">        for (String ingredient : ingredients) {</span>
+<span class="fc" id="L64">            Image overlay = loadAndScaleImage(path + recipeName + &quot;_&quot; + ingredient + &quot;.png&quot;);</span>
+<span class="fc bfc" id="L65" title="All 2 branches covered.">            if (overlay != null) {</span>
+<span class="fc" id="L66">                overlayImages.put(ingredient, overlay);</span>
+<span class="fc" id="L67">                ingredientCompleted.put(ingredient, false);</span>
+            }
+        }
+
+<span class="fc" id="L71">        bonusImage = loadAndScaleImage(path + bonusName + &quot;.png&quot;);</span>
+<span class="fc" id="L72">    }</span>
+
+    /**
+     * Loads and scales an image from the specified path.
+     */
+    private Image loadAndScaleImage(String path) {
+<span class="fc" id="L78">        Image image = loadImage(path);</span>
+<span class="fc bfc" id="L79" title="All 2 branches covered.">        if (image != null) {</span>
+<span class="fc" id="L80">            double scale = (double) (MAX_PANEL_WIDTH - BONUS_OFFSET) / image.getWidth(null);</span>
+<span class="fc" id="L81">            imageWidth = (int) (image.getWidth(null) * scale);</span>
+<span class="fc" id="L82">            imageHeight = (int) (image.getHeight(null) * scale);</span>
+<span class="fc" id="L83">            return image.getScaledInstance(imageWidth, imageHeight, Image.SCALE_SMOOTH);</span>
+        }
+<span class="fc" id="L85">        return null;</span>
+    }
+
+    /**
+     * Loads an image from the specified path.
+     */
+    private Image loadImage(String path) {
+<span class="fc" id="L92">        try (InputStream is = getClass().getResourceAsStream(path)) {</span>
+<span class="pc bpc" id="L93" title="1 of 2 branches missed.">            if (is != null) {</span>
+<span class="fc" id="L94">                return ImageIO.read(is);</span>
+            }
+<span class="fc" id="L96">        } catch (IOException e) {</span>
+<span class="fc" id="L97">            System.err.println(&quot;Failed to load image: &quot; + path);</span>
+        }
+<span class="fc" id="L99">        return null;</span>
+    }
+
+    /**
+     * Updates the completion state of an ingredient.
+     */
+    public void updateIngredientState(String ingredient, boolean completed) {
+<span class="fc" id="L106">        ingredientCompleted.put(ingredient.toLowerCase(), completed);</span>
+<span class="fc" id="L107">        revalidate();</span>
+<span class="fc" id="L108">        repaint();</span>
+<span class="fc" id="L109">    }</span>
+
+    /**
+     * Updates the bonus collection state.
+     */
+    public void updateBonusState(boolean collected) {
+<span class="fc" id="L115">        this.bonusCollected = collected;</span>
+<span class="fc" id="L116">        revalidate();</span>
+<span class="fc" id="L117">        repaint();</span>
+<span class="fc" id="L118">    }</span>
+
+    /**
+     * Calculates the height of the panel based on image dimensions and gaps.
+     */
+    private int calculatePanelHeight() {
+<span class="fc" id="L124">        return imageHeight * 2 + VERTICAL_GAP;</span>
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+<span class="fc" id="L129">        super.paintComponent(g);</span>
+
+<span class="fc" id="L131">        int x = (getWidth() - imageWidth) / 2;</span>
+
+        // Draw the base recipe image
+<span class="pc bpc" id="L134" title="1 of 2 branches missed.">        if (baseImage != null) {</span>
+<span class="fc" id="L135">            g.drawImage(baseImage, x, -20, imageWidth + 10, imageHeight + 10, this);</span>
+        }
+
+        // Draw ingredient overlays
+<span class="fc" id="L139">        overlayImages.forEach((ingredient, image) -&gt; {</span>
+<span class="pc bpc" id="L140" title="1 of 2 branches missed.">            if (ingredientCompleted.getOrDefault(ingredient, false)) {</span>
+<span class="nc" id="L141">                g.drawImage(image, x, -20, imageWidth + 10, imageHeight + 10, this);</span>
+            }
+<span class="fc" id="L143">        });</span>
+
+        // Draw bonus image if collected
+<span class="pc bpc" id="L146" title="3 of 4 branches missed.">        if (bonusCollected &amp;&amp; bonusImage != null) {</span>
+<span class="nc" id="L147">            g.drawImage(bonusImage, x, -20 + imageHeight + 5, imageWidth + 5, imageHeight, this);</span>
+        }
+<span class="fc" id="L149">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

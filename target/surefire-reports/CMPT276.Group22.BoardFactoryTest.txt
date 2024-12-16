@@ -1,0 +1,16 @@
+-------------------------------------------------------------------------------
+Test set: CMPT276.Group22.BoardFactoryTest
+-------------------------------------------------------------------------------
+Tests run: 7, Failures: 0, Errors: 4, Skipped: 0, Time elapsed: 2.007 s <<< FAILURE! -- in CMPT276.Group22.BoardFactoryTest
+CMPT276.Group22.BoardFactoryTest.testCreateFireBoard -- Time elapsed: 0.432 s <<< ERROR!
+java.lang.OutOfMemoryError: Java heap space
+
+CMPT276.Group22.BoardFactoryTest.testCreateIceBoard -- Time elapsed: 0.613 s <<< ERROR!
+java.lang.OutOfMemoryError: Java heap space
+
+CMPT276.Group22.BoardFactoryTest.testCreateEarthBoard -- Time elapsed: 0.433 s <<< ERROR!
+java.lang.OutOfMemoryError: Java heap space
+
+CMPT276.Group22.BoardFactoryTest.testCaseInsensitiveInput -- Time elapsed: 0.519 s <<< ERROR!
+java.lang.OutOfMemoryError: Java heap space
+

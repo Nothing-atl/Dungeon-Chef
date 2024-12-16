@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>IceBoard.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Dungeon-Chef</a> &gt; <a href="index.source.html" class="el_package">CMPT276.Group22</a> &gt; <span class="el_source">IceBoard.java</span></div><h1>IceBoard.java</h1><pre class="source lang-java linenums">package CMPT276.Group22;
+
+import javax.swing.*;
+import java.awt.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+
+/**
+ * Ice-themed game board implementation.
+ * Features frozen treats as ingredients (banana, ice cream, cherry, whip cream).
+ * Includes slippery movement mechanics and ice-themed obstacles.
+ */
+<span class="fc" id="L16">public class IceBoard extends Board {</span>
+    public static final int BANANA_TARGET = 2;
+    public static final int ICE_CREAM_TARGET = 3;
+    public static final int CHERRY_TARGET = 3;
+    public static final int WHIP_CREAM_TARGET = 1;
+    
+<span class="fc" id="L22">    private boolean bonusMilkshakeCollected = false;</span>
+
+    /**
+     * Loads and initializes ice-themed game assets.
+     * Sets up board-specific images for entities and background.
+     */
+    @Override
+    protected void loadBoardSpecificImages() {
+<span class="fc" id="L30">        loadImage(&quot;background&quot;, &quot;/assets/ice/background.png&quot;);</span>
+<span class="fc" id="L31">        loadImage(&quot;wall&quot;, &quot;/assets/ice/wall.jpg&quot;);</span>
+<span class="fc" id="L32">        loadImage(&quot;barrier&quot;, &quot;/assets/ice/wall.jpg&quot;);</span>
+<span class="fc" id="L33">        loadImage(&quot;staticEnemy&quot;, &quot;/assets/ice/enemy.png&quot;);</span>
+<span class="fc" id="L34">        loadImage(&quot;movingEnemy&quot;, &quot;/assets/ice/enemy.png&quot;);</span>
+<span class="fc" id="L35">        loadImage(&quot;regularIngredient_icecream&quot;, &quot;/assets/ice/ice-cream.png&quot;);</span>
+<span class="fc" id="L36">        loadImage(&quot;regularIngredient_cherry&quot;, &quot;/assets/ice/cherry.png&quot;);</span>
+<span class="fc" id="L37">        loadImage(&quot;regularIngredient_banana&quot;, &quot;/assets/ice/banana.png&quot;);</span>
+<span class="fc" id="L38">        loadImage(&quot;regularIngredient_whipcream&quot;, &quot;/assets/ice/whip-cream.png&quot;);</span>
+<span class="fc" id="L39">        loadImage(&quot;bonusIngredient&quot;, &quot;/assets/ice/milkshake.png&quot;);</span>
+<span class="fc" id="L40">        loadImage(&quot;player&quot;, &quot;/assets/ice/player.png&quot;);</span>
+<span class="fc" id="L41">    }</span>
+
+    /**
+     * Places initial ingredients on the board.
+     * Spawns ice cream, cherry, banana, and whip cream at random locations.
+     */
+    @Override
+    protected void initializeIngredients() {
+        // Initialize Ice (2 needed)
+<span class="fc" id="L50">        addRegularIngredients(&quot;icecream&quot;, ICE_CREAM_TARGET, 4); // Value of 5</span>
+
+        // Initialize Mint (3 needed)
+<span class="fc" id="L53">        addRegularIngredients(&quot;whipcream&quot;, WHIP_CREAM_TARGET, 7); // Value of 7</span>
+
+<span class="fc" id="L55">        addRegularIngredients(&quot;banana&quot;, BANANA_TARGET, 5); // Value of 7</span>
+
+        // Initialize Sugar (1 needed)
+<span class="fc" id="L58">        addRegularIngredients(&quot;cherry&quot;, CHERRY_TARGET, 3); // Value of 10</span>
+<span class="fc" id="L59">    }</span>
+
+    private void addRegularIngredients(String name, int quantity, int value) {
+<span class="fc bfc" id="L62" title="All 2 branches covered.">        for (int i = 0; i &lt; quantity; i++) {</span>
+            int x, y;
+            do {
+<span class="fc" id="L65">                x = new Random().nextInt(GRID_WIDTH);</span>
+<span class="fc" id="L66">                y = new Random().nextInt(GRID_HEIGHT);</span>
+<span class="pc bpc" id="L67" title="1 of 4 branches missed.">            } while (grid[y][x] != null || isPlayerPosition(x, y));</span>
+
+<span class="fc" id="L69">            RegularIngredient ingredient = new RegularIngredient(new Coordinate(y, x), value, name, this);</span>
+<span class="fc" id="L70">            ingredients.add(ingredient);</span>
+<span class="fc" id="L71">            grid[y][x] = ingredient;</span>
+        }
+<span class="fc" id="L73">    }</span>
+
+    @Override
+    protected List&lt;String&gt; getRequiredIngredients() {
+<span class="fc" id="L77">        return Arrays.asList(&quot;icecream&quot;, &quot;whipcream&quot;, &quot;banana&quot;, &quot;cherry&quot;);</span>
+    }
+
+    @Override
+    protected void initializeEnemies() {
+        // Initialize static enemies
+<span class="fc" id="L83">        int numStaticEnemies = 4;</span>
+<span class="fc bfc" id="L84" title="All 2 branches covered.">        for (int i = 0; i &lt; numStaticEnemies; i++) {</span>
+            int x, y;
+            do {
+<span class="fc" id="L87">                x = new Random().nextInt(GRID_WIDTH);</span>
+<span class="fc" id="L88">                y = new Random().nextInt(GRID_HEIGHT);</span>
+<span class="pc bpc" id="L89" title="1 of 4 branches missed.">            } while (grid[y][x] != null || isPlayerPosition(x, y));</span>
+
+<span class="fc" id="L91">            StaticEnemy enemy = new StaticEnemy(new Coordinate(y, x), 15); // Penalty of 15</span>
+<span class="fc" id="L92">            staticEnemies.add(enemy);</span>
+<span class="fc" id="L93">            grid[y][x] = enemy;</span>
+        }
+
+        // Initialize moving enemies
+<span class="fc" id="L97">        int numMovingEnemies = 2;</span>
+<span class="fc bfc" id="L98" title="All 2 branches covered.">        for (int i = 0; i &lt; numMovingEnemies; i++) {</span>
+            int x, y;
+            do {
+<span class="fc" id="L101">                x = new Random().nextInt(GRID_WIDTH);</span>
+<span class="fc" id="L102">                y = new Random().nextInt(GRID_HEIGHT);</span>
+<span class="pc bpc" id="L103" title="2 of 4 branches missed.">            } while (grid[y][x] != null || isPlayerPosition(x, y));</span>
+
+<span class="fc" id="L105">            MovingEnemy enemy = new MovingEnemy(new Coordinate(y, x));</span>
+<span class="fc" id="L106">            movingEnemies.add(enemy);</span>
+<span class="fc" id="L107">            grid[y][x] = enemy;</span>
+        }
+<span class="fc" id="L109">    }</span>
+
+    @Override
+    protected void spawnBonusIngredient() {
+<span class="nc bnc" id="L113" title="All 6 branches missed.">        if (isGameOver || isGameWon || bonusCollected) {</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">            if (bonusSpawnTimer != null) {</span>
+<span class="nc" id="L115">                bonusSpawnTimer.stop();</span>
+            }
+<span class="nc" id="L117">            return;</span>
+        }
+
+        int x, y;
+        do {
+<span class="nc" id="L122">            x = new Random().nextInt(GRID_WIDTH);</span>
+<span class="nc" id="L123">            y = new Random().nextInt(GRID_HEIGHT);</span>
+<span class="nc bnc" id="L124" title="All 2 branches missed.">        } while (grid[y][x] != null);</span>
+
+<span class="nc" id="L126">        int bonusValue = 20;</span>
+<span class="nc" id="L127">        int bonusDuration = 5000;</span>
+
+        // Play spawn sound effect
+<span class="nc" id="L130">        SoundManager.getInstance().playSound(&quot;bonus_spawned&quot;);</span>
+
+<span class="nc" id="L132">        BonusIngredient bonus = new BonusIngredient(new Coordinate(y, x), bonusValue, &quot;milkshake&quot;, bonusDuration, this);</span>
+<span class="nc" id="L133">        ingredients.add(bonus);</span>
+<span class="nc" id="L134">        grid[y][x] = bonus;</span>
+<span class="nc" id="L135">        repaint();</span>
+<span class="nc" id="L136">    }</span>
+
+     /**
+     * Processes milkshake bonus collection.
+     * Updates score and disables further bonus spawns.
+     * @param ingredient the collected bonus ingredient
+     */
+    @Override
+    protected void handleBonusCollection(Ingredient ingredient) {
+<span class="nc bnc" id="L145" title="All 4 branches missed.">        if (ingredient instanceof BonusIngredient &amp;&amp; !bonusCollected) {</span>
+<span class="nc" id="L146">            bonusCollected = true;</span>
+<span class="nc" id="L147">            bonusMilkshakeCollected = true;</span>
+<span class="nc" id="L148">            playerScore += ingredient.getValue();</span>
+<span class="nc bnc" id="L149" title="All 2 branches missed.">            if (bonusSpawnTimer != null) {</span>
+<span class="nc" id="L150">                bonusSpawnTimer.stop();</span>
+            }
+        }
+<span class="nc" id="L153">    }</span>
+
+    @Override
+    protected void initializeBarriers() {
+        // Initialize barriers specific to the Ice level
+<span class="fc" id="L158">        int numBarriers = 12; // Adjust as needed</span>
+<span class="fc bfc" id="L159" title="All 2 branches covered.">        for (int i = 0; i &lt; numBarriers; i++) {</span>
+            int x, y;
+            do {
+<span class="fc" id="L162">                x = new Random().nextInt(GRID_WIDTH);</span>
+<span class="fc" id="L163">                y = new Random().nextInt(GRID_HEIGHT);</span>
+<span class="pc bpc" id="L164" title="1 of 4 branches missed.">            } while (grid[y][x] != null || isPlayerPosition(x, y));</span>
+
+<span class="fc" id="L166">            Barrier barrier = new Barrier(new Coordinate(y, x));</span>
+<span class="fc" id="L167">            barriers.add(barrier);</span>
+<span class="fc" id="L168">            grid[y][x] = barrier;</span>
+        }
+<span class="fc" id="L170">    }</span>
+
+    @Override
+    protected void checkWinCondition() {
+<span class="nc" id="L174">        Map&lt;String, Integer&gt; collectedCounts = new HashMap&lt;&gt;();</span>
+<span class="nc bnc" id="L175" title="All 2 branches missed.">        for (String ingredient : collectedIngredients) {</span>
+<span class="nc" id="L176">            collectedCounts.merge(ingredient, 1, Integer::sum);</span>
+        }
+
+<span class="nc bnc" id="L179" title="All 2 branches missed.">        boolean hasEnoughBanana = collectedCounts.getOrDefault(&quot;banana&quot;, 0) &gt;= BANANA_TARGET;</span>
+<span class="nc bnc" id="L180" title="All 2 branches missed.">        boolean hasEnoughIceCream = collectedCounts.getOrDefault(&quot;icecream&quot;, 0) &gt;= ICE_CREAM_TARGET;</span>
+<span class="nc bnc" id="L181" title="All 2 branches missed.">        boolean hasEnoughCherry = collectedCounts.getOrDefault(&quot;cherry&quot;, 0) &gt;= CHERRY_TARGET;</span>
+<span class="nc bnc" id="L182" title="All 2 branches missed.">        boolean hasEnoughWhipCream = collectedCounts.getOrDefault(&quot;whipcream&quot;, 0) &gt;= WHIP_CREAM_TARGET;</span>
+
+<span class="nc bnc" id="L184" title="All 8 branches missed.">        if (hasEnoughBanana &amp;&amp; hasEnoughIceCream &amp;&amp; hasEnoughCherry &amp;&amp; hasEnoughWhipCream) {</span>
+<span class="nc" id="L185">            isGameOver = true;</span>
+<span class="nc" id="L186">            isGameWon = true;</span>
+            // Stop enemy movement and bonus spawning
+<span class="nc bnc" id="L188" title="All 2 branches missed.">            if (enemyTimer != null) {</span>
+<span class="nc" id="L189">                enemyTimer.stop();</span>
+            }
+<span class="nc bnc" id="L191" title="All 2 branches missed.">            if (bonusSpawnTimer != null) {</span>
+<span class="nc" id="L192">                bonusSpawnTimer.stop();</span>
+            }
+<span class="nc" id="L194">            SoundManager.getInstance().playSound(&quot;win&quot;);</span>
+<span class="nc bnc" id="L195" title="All 2 branches missed.">            if (gameBoard != null) {</span>
+<span class="nc" id="L196">                SwingUtilities.invokeLater(() -&gt; {</span>
+<span class="nc" id="L197">                    gameBoard.showGameOverDialog();</span>
+<span class="nc" id="L198">                });</span>
+            }
+        }
+<span class="nc" id="L201">    }</span>
+
+    private boolean isPlayerPosition(int x, int y) {
+<span class="pc bpc" id="L204" title="1 of 4 branches missed.">        return x == playerX &amp;&amp; y == playerY;</span>
+    }
+
+    @Override
+    protected void collectIngredient(Ingredient ingredient) {
+<span class="nc" id="L209">        playerScore += ingredient.getValue();</span>
+<span class="nc bnc" id="L210" title="All 2 branches missed.">        if (ingredient instanceof BonusIngredient) {</span>
+<span class="nc" id="L211">            bonusMilkshakeCollected = true;</span>
+<span class="nc" id="L212">        } else {</span>
+<span class="nc" id="L213">            incrementIngredientCount(ingredient.getName());</span>
+        }
+<span class="nc" id="L215">        ingredients.remove(ingredient);</span>
+<span class="nc" id="L216">        grid[ingredient.getPosition().getRow()][ingredient.getPosition().getCol()] = null;</span>
+<span class="nc" id="L217">    }</span>
+
+    public int getIngredientCount(String ingredient) {
+<span class="nc" id="L220">        return ingredientCounts.getOrDefault(ingredient.toLowerCase(), 0);</span>
+    }
+
+
+    @Override
+    protected int getTargetForIngredient(String ingredient) {
+<span class="nc bnc" id="L226" title="All 5 branches missed.">        switch (ingredient.toLowerCase()) {</span>
+<span class="nc" id="L227">            case &quot;banana&quot;: return BANANA_TARGET;</span>
+<span class="nc" id="L228">            case &quot;icecream&quot;: return ICE_CREAM_TARGET;</span>
+<span class="nc" id="L229">            case &quot;cherry&quot;: return CHERRY_TARGET;</span>
+<span class="nc" id="L230">            case &quot;whipcream&quot;: return WHIP_CREAM_TARGET;</span>
+<span class="nc" id="L231">            default: return 0;</span>
+        }
+    }
+
+    // Getters for score display
+<span class="nc" id="L236">    public int getBananaCollected() { return getIngredientCount(&quot;banana&quot;); }</span>
+<span class="nc" id="L237">    public int getIceCreamCollected() { return getIngredientCount(&quot;icecream&quot;); }</span>
+<span class="nc" id="L238">    public int getCherryCollected() { return getIngredientCount(&quot;cherry&quot;); }</span>
+<span class="nc" id="L239">    public int getWhipCreamCollected() { return getIngredientCount(&quot;whipcream&quot;); }</span>
+<span class="nc" id="L240">    public boolean hasBonusMilkshake() { return bonusMilkshakeCollected; }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

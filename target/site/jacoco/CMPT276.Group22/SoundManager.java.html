@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SoundManager.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Dungeon-Chef</a> &gt; <a href="index.source.html" class="el_package">CMPT276.Group22</a> &gt; <span class="el_source">SoundManager.java</span></div><h1>SoundManager.java</h1><pre class="source lang-java linenums">package CMPT276.Group22;
+
+import javax.sound.sampled.*;
+import java.io.BufferedInputStream;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * Manages sound effects and background music for the game.
+ * Provides methods to play, pause, and stop sounds as needed.
+ */
+public class SoundManager {
+    private static SoundManager instance;
+    private Map&lt;String, Clip&gt; clips;
+    private Clip currentMusic;
+<span class="fc" id="L17">    private float volume = 1.0f;</span>
+<span class="fc" id="L18">    private boolean isMuted = false;</span>
+
+<span class="fc" id="L20">    private SoundManager() {</span>
+<span class="fc" id="L21">        clips = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L22">        initializeSounds();</span>
+<span class="fc" id="L23">    }</span>
+
+    public static SoundManager getInstance() {
+<span class="fc bfc" id="L26" title="All 2 branches covered.">        if (instance == null) {</span>
+<span class="fc" id="L27">            instance = new SoundManager();</span>
+        }
+<span class="fc" id="L29">        return instance;</span>
+    }
+
+    private void initializeSounds() {
+        try {
+            // Load all sounds
+<span class="fc" id="L35">            loadSound(&quot;collect_ingredient&quot;, &quot;/sounds/collect_ingredient.wav&quot;);</span>
+<span class="fc" id="L36">            loadSound(&quot;collect_bonus&quot;, &quot;/sounds/collect_bonus.wav&quot;);</span>
+<span class="fc" id="L37">            loadSound(&quot;button_click&quot;, &quot;/sounds/button_click.wav&quot;);</span>
+<span class="fc" id="L38">            loadSound(&quot;menu_music&quot;, &quot;/sounds/menu_music.wav&quot;);</span>
+<span class="fc" id="L39">            loadSound(&quot;fire_music&quot;, &quot;/sounds/fire_music.wav&quot;);</span>
+<span class="fc" id="L40">            loadSound(&quot;ice_music&quot;, &quot;/sounds/ice_music.wav&quot;);</span>
+<span class="fc" id="L41">            loadSound(&quot;earth_music&quot;, &quot;/sounds/earth_music.wav&quot;);</span>
+<span class="fc" id="L42">            loadSound(&quot;win&quot;, &quot;/sounds/win.wav&quot;);</span>
+<span class="fc" id="L43">            loadSound(&quot;game_over&quot;, &quot;/sounds/game_over.wav&quot;);</span>
+<span class="fc" id="L44">            loadSound(&quot;enemy_hit&quot;, &quot;/sounds/enemy_hit.wav&quot;);</span>
+<span class="fc" id="L45">            loadSound(&quot;bonus_spawned&quot;, &quot;/sounds/bonus_spawned.wav&quot;); </span>
+<span class="pc" id="L46">        } catch (Exception e) {</span>
+<span class="nc" id="L47">            System.err.println(&quot;Error initializing sounds: &quot; + e.getMessage());</span>
+        }
+<span class="fc" id="L49">    }</span>
+
+    private void loadSound(String name, String path) {
+        try {
+<span class="fc" id="L53">            InputStream audioSrc = getClass().getResourceAsStream(path);</span>
+<span class="pc bpc" id="L54" title="1 of 2 branches missed.">            if (audioSrc == null) {</span>
+<span class="nc" id="L55">                System.err.println(&quot;Could not find sound file: &quot; + path);</span>
+<span class="nc" id="L56">                return;</span>
+            }
+            
+<span class="fc" id="L59">            InputStream bufferedIn = new BufferedInputStream(audioSrc);</span>
+<span class="fc" id="L60">            AudioInputStream audioStream = AudioSystem.getAudioInputStream(bufferedIn);</span>
+            
+<span class="fc" id="L62">            Clip clip = AudioSystem.getClip();</span>
+<span class="fc" id="L63">            clip.open(audioStream);</span>
+            
+<span class="fc" id="L65">            clips.put(name, clip);</span>
+<span class="fc" id="L66">        } catch (Exception e) {</span>
+<span class="fc" id="L67">            System.err.println(&quot;Error loading sound &quot; + name + &quot;: &quot; + e.getMessage());</span>
+        }
+<span class="fc" id="L69">    }</span>
+
+    public void playSound(String name) {
+<span class="fc bfc" id="L72" title="All 2 branches covered.">        if (isMuted) return;</span>
+        
+        // System.out.println(&quot;Attempting to play sound: &quot; + name);
+<span class="fc" id="L75">        Clip clip = clips.get(name);</span>
+        
+<span class="fc bfc" id="L77" title="All 2 branches covered.">        if (clip != null) {</span>
+            // For collection sounds, don't stop previous sound
+<span class="fc bfc" id="L79" title="All 4 branches covered.">            if (name.equals(&quot;collect_ingredient&quot;) || name.equals(&quot;collect_bonus&quot;)) {</span>
+                // Just start from beginning, even if currently playing
+<span class="fc" id="L81">                clip.setFramePosition(0);</span>
+<span class="fc" id="L82">                clip.start();</span>
+<span class="fc" id="L83">            } else {</span>
+                // For other sounds, stop current and replay
+<span class="fc bfc" id="L85" title="All 2 branches covered.">                if (clip.isRunning()) {</span>
+<span class="fc" id="L86">                    clip.stop();</span>
+                }
+<span class="fc" id="L88">                clip.setFramePosition(0);</span>
+<span class="fc" id="L89">                clip.start();</span>
+            }
+<span class="fc" id="L91">        } else {</span>
+<span class="fc" id="L92">            System.out.println(&quot;Sound clip not found: &quot; + name);</span>
+        }
+<span class="fc" id="L94">    }</span>
+
+    public void playBackgroundMusic(String name) {
+<span class="fc bfc" id="L97" title="All 2 branches covered.">        if (isMuted) return;</span>
+        
+<span class="fc" id="L99">        stopBackgroundMusic();</span>
+        
+<span class="fc" id="L101">        Clip music = clips.get(name);</span>
+<span class="fc bfc" id="L102" title="All 2 branches covered.">        if (music != null) {</span>
+<span class="fc" id="L103">            music.setFramePosition(0);</span>
+<span class="fc" id="L104">            music.loop(Clip.LOOP_CONTINUOUSLY);</span>
+<span class="fc" id="L105">            currentMusic = music;</span>
+        }
+<span class="fc" id="L107">    }</span>
+
+    public void stopBackgroundMusic() {
+<span class="fc bfc" id="L110" title="All 4 branches covered.">        if (currentMusic != null &amp;&amp; currentMusic.isRunning()) {</span>
+<span class="fc" id="L111">            currentMusic.stop();</span>
+<span class="fc" id="L112">            currentMusic.setFramePosition(0);</span>
+        }
+<span class="fc" id="L114">    }</span>
+
+    public void pauseBackgroundMusic() {
+<span class="pc bpc" id="L117" title="2 of 4 branches missed.">        if (currentMusic != null &amp;&amp; currentMusic.isRunning()) {</span>
+<span class="fc" id="L118">            currentMusic.stop();</span>
+        }
+<span class="fc" id="L120">    }</span>
+
+    public void resumeBackgroundMusic() {
+<span class="pc bpc" id="L123" title="3 of 6 branches missed.">        if (currentMusic != null &amp;&amp; !currentMusic.isRunning() &amp;&amp; !isMuted) {</span>
+<span class="fc" id="L124">            currentMusic.loop(Clip.LOOP_CONTINUOUSLY);</span>
+        }
+<span class="fc" id="L126">    }</span>
+
+    public void setVolume(float volume) {
+<span class="fc" id="L129">        this.volume = Math.min(1.0f, Math.max(0.0f, volume));</span>
+<span class="fc bfc" id="L130" title="All 2 branches covered.">        for (Clip clip : clips.values()) {</span>
+<span class="pc bpc" id="L131" title="1 of 2 branches missed.">            if (clip != null) {</span>
+<span class="fc" id="L132">                FloatControl gainControl = </span>
+<span class="fc" id="L133">                    (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);</span>
+<span class="fc" id="L134">                float dB = (float) (Math.log(volume) / Math.log(10.0) * 20.0);</span>
+<span class="fc" id="L135">                gainControl.setValue(dB);</span>
+            }
+        }
+<span class="fc" id="L138">    }</span>
+
+    public void toggleMute() {
+<span class="fc bfc" id="L141" title="All 2 branches covered.">        isMuted = !isMuted;</span>
+<span class="fc bfc" id="L142" title="All 2 branches covered.">        if (isMuted) {</span>
+<span class="fc" id="L143">            stopBackgroundMusic();</span>
+<span class="pc bpc" id="L144" title="1 of 2 branches missed.">        } else if (currentMusic != null) {</span>
+<span class="nc" id="L145">            currentMusic.loop(Clip.LOOP_CONTINUOUSLY);</span>
+        }
+<span class="fc" id="L147">    }</span>
+
+    public void cleanup() {
+<span class="fc" id="L150">        stopBackgroundMusic();</span>
+<span class="fc bfc" id="L151" title="All 2 branches covered.">        for (Clip clip : clips.values()) {</span>
+<span class="pc bpc" id="L152" title="1 of 2 branches missed.">            if (clip != null) {</span>
+<span class="fc" id="L153">                clip.close();</span>
+            }
+        }
+<span class="fc" id="L156">        clips.clear();</span>
+<span class="fc" id="L157">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

@@ -1,0 +1,40 @@
+-------------------------------------------------------------------------------
+Test set: CMPT276.Group22.FireBoardTest
+-------------------------------------------------------------------------------
+Tests run: 12, Failures: 0, Errors: 12, Skipped: 0, Time elapsed: 6.506 s <<< FAILURE! -- in CMPT276.Group22.FireBoardTest
+CMPT276.Group22.FireBoardTest.testGetRequiredIngredients -- Time elapsed: 0.446 s <<< ERROR!
+java.lang.OutOfMemoryError: Java heap space
+
+CMPT276.Group22.FireBoardTest.testCollectIngredient -- Time elapsed: 0.445 s <<< ERROR!
+java.lang.OutOfMemoryError: Java heap space
+
+CMPT276.Group22.FireBoardTest.testIngredientCollection -- Time elapsed: 0.498 s <<< ERROR!
+java.lang.OutOfMemoryError: Java heap space
+
+CMPT276.Group22.FireBoardTest.testCheckWinCondition -- Time elapsed: 0.487 s <<< ERROR!
+java.lang.OutOfMemoryError: Java heap space
+
+CMPT276.Group22.FireBoardTest.testGetTargetForIngredient -- Time elapsed: 0.492 s <<< ERROR!
+java.lang.OutOfMemoryError: Java heap space
+
+CMPT276.Group22.FireBoardTest.testBonusIngredientLifecycle -- Time elapsed: 0.596 s <<< ERROR!
+java.lang.OutOfMemoryError: Java heap space
+
+CMPT276.Group22.FireBoardTest.testInitializeIngredients -- Time elapsed: 0.583 s <<< ERROR!
+java.lang.OutOfMemoryError: Java heap space
+
+CMPT276.Group22.FireBoardTest.testInitializeBarriers -- Time elapsed: 0.466 s <<< ERROR!
+java.lang.OutOfMemoryError: Java heap space
+
+CMPT276.Group22.FireBoardTest.testSpawnBonusIngredient -- Time elapsed: 0.584 s <<< ERROR!
+java.lang.OutOfMemoryError: Java heap space
+
+CMPT276.Group22.FireBoardTest.testInitializeEnemies -- Time elapsed: 0.752 s <<< ERROR!
+java.lang.OutOfMemoryError: Java heap space
+
+CMPT276.Group22.FireBoardTest.testInitialState -- Time elapsed: 0.507 s <<< ERROR!
+java.lang.OutOfMemoryError: Java heap space
+
+CMPT276.Group22.FireBoardTest.testHandleBonusCollection -- Time elapsed: 0.641 s <<< ERROR!
+java.lang.OutOfMemoryError: Java heap space
+

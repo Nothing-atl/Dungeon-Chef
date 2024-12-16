@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MainMenu.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Dungeon-Chef</a> &gt; <a href="index.source.html" class="el_package">CMPT276.Group22</a> &gt; <span class="el_source">MainMenu.java</span></div><h1>MainMenu.java</h1><pre class="source lang-java linenums">package CMPT276.Group22;
+
+import javax.swing.*;
+import java.awt.*;
+
+/**
+ * The main menu interface for the Dungeon Chef game.
+ * Provides options to start game, view instructions, and exit.
+ */
+public class MainMenu extends JFrame {
+    private static final String BACKGROUND_IMAGE = &quot;/assets/character/Designer.jpeg&quot;;
+    private static final String START_GAME_IMAGE = &quot;/assets/character/start-game.png&quot;;
+    private static final String INSTRUCTIONS_IMAGE = &quot;/assets/character/instructions.png&quot;;
+    private static final String EXIT_GAME_IMAGE = &quot;/assets/character/exit-game.png&quot;;
+    private static final String INSTRUCTION_SCREEN_IMAGE = &quot;/assets/character/instruction.png&quot;;
+    private static final String MENU_MUSIC = &quot;menu_music&quot;;
+    private static final String BUTTON_CLICK_SOUND = &quot;button_click&quot;;
+
+    private final SoundManager soundManager;
+<span class="fc" id="L20">    private final JPanel menuPanel = new JPanel();</span>
+<span class="fc" id="L21">    private final JLabel titleLabel = new JLabel(&quot;DUNGEON CHEF&quot;);</span>
+
+    JButton startGameButton;
+    JButton instructionButton;
+    JButton exitButton;
+
+<span class="pc" id="L27">    private ExitHandler exitHandler = () -&gt; System.exit(0); // Default behavior</span>
+
+<span class="fc" id="L29">    public MainMenu() {</span>
+        // Sound Manager Initialization
+<span class="fc" id="L31">        soundManager = SoundManager.getInstance();</span>
+
+<span class="fc" id="L33">        initializeFrame();</span>
+<span class="fc" id="L34">        initializeBackground();</span>
+<span class="fc" id="L35">        initializeMenuPanel();</span>
+<span class="fc" id="L36">        initializeButtons();</span>
+
+<span class="fc" id="L38">        soundManager.playBackgroundMusic(MENU_MUSIC);</span>
+<span class="fc" id="L39">    }</span>
+
+    private void initializeFrame() {
+<span class="fc" id="L42">        setTitle(&quot;Dungeon Chef&quot;);</span>
+<span class="fc" id="L43">        setResizable(false);</span>
+<span class="fc" id="L44">        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);</span>
+<span class="fc" id="L45">        setSize(800, 600);</span>
+<span class="fc" id="L46">        setLocationRelativeTo(null);</span>
+<span class="fc" id="L47">        setLayout(new BorderLayout());</span>
+<span class="fc" id="L48">    }</span>
+
+    private void initializeBackground() {
+<span class="fc" id="L51">        JLabel background = createBackgroundImage(BACKGROUND_IMAGE);</span>
+<span class="fc" id="L52">        background.setLayout(new BorderLayout());</span>
+<span class="fc" id="L53">        add(background);</span>
+<span class="fc" id="L54">        background.add(menuPanel, BorderLayout.CENTER);</span>
+<span class="fc" id="L55">    }</span>
+
+    private JLabel createBackgroundImage(String imagePath) {
+<span class="fc" id="L58">        ImageIcon backgroundImage = new ImageIcon(getClass().getResource(imagePath));</span>
+<span class="fc" id="L59">        JLabel background = new JLabel(backgroundImage);</span>
+<span class="fc" id="L60">        background.setLayout(new BorderLayout());</span>
+<span class="fc" id="L61">        return background;</span>
+    }
+
+    private void initializeMenuPanel() {
+<span class="fc" id="L65">        menuPanel.setOpaque(false); // Make the panel transparent</span>
+<span class="fc" id="L66">        menuPanel.setLayout(new GridBagLayout());</span>
+<span class="fc" id="L67">        GridBagConstraints gbc = new GridBagConstraints();</span>
+<span class="fc" id="L68">        gbc.fill = GridBagConstraints.HORIZONTAL;</span>
+<span class="fc" id="L69">        gbc.anchor = GridBagConstraints.CENTER;</span>
+<span class="fc" id="L70">        gbc.insets = new Insets(10, 10, 10, 10);</span>
+
+<span class="fc" id="L72">        titleLabel.setFont(new Font(&quot;Arial&quot;, Font.BOLD, 36));</span>
+<span class="fc" id="L73">        titleLabel.setForeground(Color.WHITE);</span>
+<span class="fc" id="L74">        gbc.gridy = 0;</span>
+<span class="fc" id="L75">        menuPanel.add(titleLabel, gbc);</span>
+<span class="fc" id="L76">    }</span>
+
+    private void initializeButtons() {
+<span class="fc" id="L79">        GridBagConstraints gbc = new GridBagConstraints();</span>
+<span class="fc" id="L80">        gbc.fill = GridBagConstraints.HORIZONTAL;</span>
+<span class="fc" id="L81">        gbc.anchor = GridBagConstraints.CENTER;</span>
+<span class="fc" id="L82">        gbc.insets = new Insets(10, 10, 10, 10);</span>
+
+        // Start Game Button
+<span class="fc" id="L85">        startGameButton = createButton(START_GAME_IMAGE, 200, 60, this::startGame);</span>
+<span class="fc" id="L86">        gbc.gridy = 1;</span>
+<span class="fc" id="L87">        menuPanel.add(startGameButton, gbc);</span>
+
+        // Instructions Button
+<span class="fc" id="L90">        instructionButton = createButton(INSTRUCTIONS_IMAGE, 200, 60, this::showInstructions);</span>
+<span class="fc" id="L91">        gbc.gridy = 2;</span>
+<span class="fc" id="L92">        menuPanel.add(instructionButton, gbc);</span>
+
+        // Exit Game Button
+<span class="fc" id="L95">        exitButton = createButton(EXIT_GAME_IMAGE, 200, 60, exitHandler::exit);</span>
+<span class="fc" id="L96">        gbc.gridy = 3;</span>
+<span class="fc" id="L97">        menuPanel.add(exitButton, gbc);</span>
+<span class="fc" id="L98">    }</span>
+
+    private JButton createButton(String imagePath, int width, int height, Runnable action) {
+<span class="fc" id="L101">        ImageIcon icon = new ImageIcon(getClass().getResource(imagePath));</span>
+<span class="fc" id="L102">        Image scaledImage = icon.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH);</span>
+<span class="fc" id="L103">        JButton button = new JButton(new ImageIcon(scaledImage));</span>
+<span class="fc" id="L104">        button.setPreferredSize(new Dimension(width, height));</span>
+<span class="fc" id="L105">        button.setFocusPainted(false); // Remove focus border</span>
+<span class="fc" id="L106">        button.setContentAreaFilled(false); // Transparent background</span>
+<span class="fc" id="L107">        button.setBorderPainted(false); // Remove button border</span>
+<span class="fc" id="L108">        button.addActionListener(e -&gt; {</span>
+<span class="fc" id="L109">            soundManager.playSound(BUTTON_CLICK_SOUND);</span>
+<span class="fc" id="L110">            action.run();</span>
+<span class="fc" id="L111">        });</span>
+<span class="fc" id="L112">        return button;</span>
+    }
+
+    public void setExitHandler(ExitHandler handler) {
+<span class="nc" id="L116">        this.exitHandler = handler;</span>
+<span class="nc" id="L117">    }</span>
+
+    private void startGame() {
+<span class="fc" id="L120">        this.setVisible(false);</span>
+<span class="fc" id="L121">        LevelSelectionMenu levelSelectionMenu = new LevelSelectionMenu();</span>
+<span class="fc" id="L122">        levelSelectionMenu.setVisible(true);</span>
+<span class="fc" id="L123">    }</span>
+
+    private void showInstructions() {
+<span class="fc" id="L126">        ImageIcon instructionImage = new ImageIcon(getClass().getResource(INSTRUCTION_SCREEN_IMAGE));</span>
+<span class="fc" id="L127">        JOptionPane.showMessageDialog(</span>
+<span class="fc" id="L128">                this,</span>
+<span class="fc" id="L129">                new JLabel(instructionImage),</span>
+<span class="fc" id="L130">                &quot;Instructions&quot;,</span>
+<span class="fc" id="L131">                JOptionPane.INFORMATION_MESSAGE</span>
+        );
+<span class="fc" id="L133">    }</span>
+
+    @Override
+    public void dispose() {
+<span class="nc" id="L137">        soundManager.stopBackgroundMusic();</span>
+<span class="nc" id="L138">        super.dispose();</span>
+<span class="nc" id="L139">    }</span>
+
+    /**
+     * Functional interface for handling exit behavior.
+     */
+    @FunctionalInterface
+    public interface ExitHandler {
+        void exit();
+    }
+    
+    
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

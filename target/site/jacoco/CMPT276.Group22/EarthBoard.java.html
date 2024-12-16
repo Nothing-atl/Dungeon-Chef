@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EarthBoard.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Dungeon-Chef</a> &gt; <a href="index.source.html" class="el_package">CMPT276.Group22</a> &gt; <span class="el_source">EarthBoard.java</span></div><h1>EarthBoard.java</h1><pre class="source lang-java linenums">package CMPT276.Group22;
+
+import java.awt.Graphics;
+import java.awt.Image;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import javax.swing.SwingUtilities;
+
+
+/**
+ * Earth-themed game board implementation.
+ * Features vegetable ingredients (dal, potato, carrot, onion, drumstick).
+ * Includes nature-themed obstacles and earthy environment challenges.
+ */
+<span class="fc" id="L18">public class EarthBoard extends Board {</span>
+    public static final int DAL_TARGET = 2;
+    public static final int POTATO_TARGET = 3;
+    public static final int CARROT_TARGET = 4;
+    public static final int ONION_TARGET = 2;
+
+<span class="fc" id="L24">    private boolean bonusRiceCollected = false;</span>
+
+    /**
+     * Loads and initializes earth-themed game assets.
+     * Sets up board-specific images for entities and background.
+     */
+    @Override
+    protected void loadBoardSpecificImages() {
+<span class="fc" id="L32">        loadImage(&quot;background&quot;, &quot;/assets/earth/background.png&quot;);</span>
+<span class="fc" id="L33">        loadImage(&quot;wall&quot;, &quot;/assets/earth/wall.jpg&quot;);</span>
+<span class="fc" id="L34">        loadImage(&quot;barrier&quot;, &quot;/assets/earth/wall.jpg&quot;);</span>
+<span class="fc" id="L35">        loadImage(&quot;staticEnemy&quot;, &quot;/assets/earth/enemy.png&quot;);</span>
+<span class="fc" id="L36">        loadImage(&quot;movingEnemy&quot;, &quot;/assets/earth/enemy.png&quot;);</span>
+<span class="fc" id="L37">        loadImage(&quot;regularIngredient_dal&quot;, &quot;/assets/earth/dal.png&quot;);</span>
+<span class="fc" id="L38">        loadImage(&quot;regularIngredient_potato&quot;, &quot;/assets/earth/potato.png&quot;);</span>
+<span class="fc" id="L39">        loadImage(&quot;regularIngredient_carrot&quot;, &quot;/assets/earth/carrot.png&quot;);</span>
+<span class="fc" id="L40">        loadImage(&quot;regularIngredient_onion&quot;, &quot;/assets/earth/onion.png&quot;);</span>
+        //loadImage(&quot;regularIngredient_drumstick&quot;, &quot;/assets/earth/drumstick.png&quot;);
+<span class="fc" id="L42">        loadImage(&quot;bonusIngredient&quot;, &quot;/assets/earth/rice.png&quot;);</span>
+<span class="fc" id="L43">        loadImage(&quot;player&quot;, &quot;/assets/earth/player.png&quot;);</span>
+<span class="fc" id="L44">    }</span>
+
+    /**
+     * Places initial ingredients on the board.
+     * Spawns dal, potato, carrot, onion, and drumstick at random locations.
+     */
+    @Override
+    protected void initializeIngredients() {
+        // Initialize Herbs (3 needed)
+<span class="fc" id="L53">        addRegularIngredients(&quot;dal&quot;, DAL_TARGET, 6); // Value of 6</span>
+
+        // Initialize Mushrooms (2 needed)
+<span class="fc" id="L56">        addRegularIngredients(&quot;potato&quot;, POTATO_TARGET, 2); // Value of 8</span>
+
+        // Initialize Roots (4 needed)
+<span class="fc" id="L59">        addRegularIngredients(&quot;carrot&quot;, CARROT_TARGET, 4); // Value of 5</span>
+
+<span class="fc" id="L61">        addRegularIngredients(&quot;onion&quot;, ONION_TARGET, 5);</span>
+
+        //addRegularIngredients(&quot;drumstick&quot;, DRUMSTICK_TARGET, 5);
+<span class="fc" id="L64">    }</span>
+
+    private void addRegularIngredients(String name, int quantity, int value) {
+<span class="fc bfc" id="L67" title="All 2 branches covered.">        for (int i = 0; i &lt; quantity; i++) {</span>
+            int x, y;
+            do {
+<span class="fc" id="L70">                x = new Random().nextInt(GRID_WIDTH);</span>
+<span class="fc" id="L71">                y = new Random().nextInt(GRID_HEIGHT);</span>
+<span class="fc bfc" id="L72" title="All 4 branches covered.">            } while (grid[y][x] != null || isPlayerPosition(x, y));</span>
+
+<span class="fc" id="L74">            RegularIngredient ingredient = new RegularIngredient(new Coordinate(y, x), value, name, this);</span>
+<span class="fc" id="L75">            ingredients.add(ingredient);</span>
+<span class="fc" id="L76">            grid[y][x] = ingredient;</span>
+        }
+<span class="fc" id="L78">    }</span>
+
+    @Override
+    protected List&lt;String&gt; getRequiredIngredients() {
+<span class="fc" id="L82">        return Arrays.asList(&quot;dal&quot;, &quot;potato&quot;, &quot;carrot&quot;, &quot;onion&quot;);</span>
+    }
+
+
+    @Override
+    protected void initializeEnemies() {
+        // Initialize static enemies
+<span class="fc" id="L89">        int numStaticEnemies = 6;</span>
+<span class="fc bfc" id="L90" title="All 2 branches covered.">        for (int i = 0; i &lt; numStaticEnemies; i++) {</span>
+            int x, y;
+            do {
+<span class="fc" id="L93">                x = new Random().nextInt(GRID_WIDTH);</span>
+<span class="fc" id="L94">                y = new Random().nextInt(GRID_HEIGHT);</span>
+<span class="pc bpc" id="L95" title="1 of 4 branches missed.">            } while (grid[y][x] != null || isPlayerPosition(x, y));</span>
+
+<span class="fc" id="L97">            StaticEnemy enemy = new StaticEnemy(new Coordinate(y, x), 12); // Penalty of 12</span>
+<span class="fc" id="L98">            staticEnemies.add(enemy);</span>
+<span class="fc" id="L99">            grid[y][x] = enemy;</span>
+        }
+
+        // Initialize moving enemies
+<span class="fc" id="L103">        int numMovingEnemies = 3;</span>
+<span class="fc bfc" id="L104" title="All 2 branches covered.">        for (int i = 0; i &lt; numMovingEnemies; i++) {</span>
+            int x, y;
+            do {
+<span class="fc" id="L107">                x = new Random().nextInt(GRID_WIDTH);</span>
+<span class="fc" id="L108">                y = new Random().nextInt(GRID_HEIGHT);</span>
+<span class="fc bfc" id="L109" title="All 4 branches covered.">            } while (grid[y][x] != null || isPlayerPosition(x, y));</span>
+
+<span class="fc" id="L111">            MovingEnemy enemy = new MovingEnemy(new Coordinate(y, x));</span>
+<span class="fc" id="L112">            movingEnemies.add(enemy);</span>
+<span class="fc" id="L113">            grid[y][x] = enemy;</span>
+        }
+<span class="fc" id="L115">    }</span>
+
+    @Override
+    protected void spawnBonusIngredient() {
+<span class="pc bpc" id="L119" title="2 of 6 branches missed.">        if (isGameOver || isGameWon || bonusCollected) {</span>
+<span class="pc bpc" id="L120" title="1 of 2 branches missed.">            if (bonusSpawnTimer != null) {</span>
+<span class="fc" id="L121">                bonusSpawnTimer.stop();</span>
+            }
+<span class="fc" id="L123">            return;</span>
+        }
+
+        int x, y;
+        do {
+<span class="fc" id="L128">            x = new Random().nextInt(GRID_WIDTH);</span>
+<span class="fc" id="L129">            y = new Random().nextInt(GRID_HEIGHT);</span>
+<span class="fc bfc" id="L130" title="All 2 branches covered.">        } while (grid[y][x] != null);</span>
+
+<span class="fc" id="L132">        int bonusValue = 20;</span>
+<span class="fc" id="L133">        int bonusDuration = 5000;</span>
+
+        // Play spawn sound effect
+<span class="fc" id="L136">        SoundManager.getInstance().playSound(&quot;bonus_spawned&quot;);</span>
+
+<span class="fc" id="L138">        BonusIngredient bonus = new BonusIngredient(new Coordinate(y, x), bonusValue, &quot;rice&quot;, bonusDuration, this);</span>
+<span class="fc" id="L139">        ingredients.add(bonus);</span>
+<span class="fc" id="L140">        grid[y][x] = bonus;</span>
+<span class="fc" id="L141">        repaint();</span>
+<span class="fc" id="L142">    }</span>
+    
+    /**
+     * Processes rice bonus collection.
+     * Updates score and disables further bonus spawns.
+     * @param ingredient the collected bonus ingredient
+     */
+    @Override
+    protected void handleBonusCollection(Ingredient ingredient) {
+<span class="pc bpc" id="L151" title="1 of 4 branches missed.">        if (ingredient instanceof BonusIngredient &amp;&amp; !bonusCollected) {</span>
+<span class="fc" id="L152">            bonusCollected = true;</span>
+<span class="fc" id="L153">            bonusRiceCollected = true;</span>
+<span class="fc" id="L154">            playerScore += ingredient.getValue();</span>
+<span class="pc bpc" id="L155" title="1 of 2 branches missed.">            if (bonusSpawnTimer != null) {</span>
+<span class="fc" id="L156">                bonusSpawnTimer.stop();</span>
+            }
+        }
+<span class="fc" id="L159">    }</span>
+
+    @Override
+    protected void initializeBarriers() {
+        // Initialize barriers specific to the Earth level
+<span class="fc" id="L164">        int numBarriers = 18; // Adjust as needed</span>
+<span class="fc bfc" id="L165" title="All 2 branches covered.">        for (int i = 0; i &lt; numBarriers; i++) {</span>
+            int x, y;
+            do {
+<span class="fc" id="L168">                x = new Random().nextInt(GRID_WIDTH);</span>
+<span class="fc" id="L169">                y = new Random().nextInt(GRID_HEIGHT);</span>
+<span class="fc bfc" id="L170" title="All 4 branches covered.">            } while (grid[y][x] != null || isPlayerPosition(x, y));</span>
+
+<span class="fc" id="L172">            Barrier barrier = new Barrier(new Coordinate(y, x));</span>
+<span class="fc" id="L173">            barriers.add(barrier);</span>
+<span class="fc" id="L174">            grid[y][x] = barrier;</span>
+        }
+<span class="fc" id="L176">    }</span>
+
+    @Override
+    protected void checkWinCondition() {
+<span class="fc" id="L180">        Map&lt;String, Integer&gt; collectedCounts = new HashMap&lt;&gt;();</span>
+<span class="fc bfc" id="L181" title="All 2 branches covered.">        for (String ingredient : collectedIngredients) {</span>
+<span class="fc" id="L182">            collectedCounts.merge(ingredient, 1, Integer::sum);</span>
+        }
+
+<span class="fc bfc" id="L185" title="All 2 branches covered.">        boolean hasEnoughDal = collectedCounts.getOrDefault(&quot;dal&quot;, 0) &gt;= DAL_TARGET;</span>
+<span class="fc bfc" id="L186" title="All 2 branches covered.">        boolean hasEnoughPotato = collectedCounts.getOrDefault(&quot;potato&quot;, 0) &gt;= POTATO_TARGET;</span>
+<span class="fc bfc" id="L187" title="All 2 branches covered.">        boolean hasEnoughCarrot = collectedCounts.getOrDefault(&quot;carrot&quot;, 0) &gt;= CARROT_TARGET;</span>
+<span class="fc bfc" id="L188" title="All 2 branches covered.">        boolean hasEnoughOnion = collectedCounts.getOrDefault(&quot;onion&quot;, 0) &gt;= ONION_TARGET;</span>
+        //boolean hasEnoughDrumstick = collectedCounts.getOrDefault(&quot;drumstick&quot;, 0) &gt;= DRUMSTICK_TARGET;
+
+<span class="pc bpc" id="L191" title="3 of 8 branches missed.">        if (hasEnoughDal &amp;&amp; hasEnoughPotato &amp;&amp; hasEnoughCarrot &amp;&amp; hasEnoughOnion) {</span>
+<span class="fc" id="L192">            isGameOver = true;</span>
+<span class="fc" id="L193">            isGameWon = true;</span>
+            // Stop enemy movement and bonus spawning
+<span class="pc bpc" id="L195" title="1 of 2 branches missed.">            if (enemyTimer != null) {</span>
+<span class="fc" id="L196">                enemyTimer.stop();</span>
+            }
+<span class="pc bpc" id="L198" title="1 of 2 branches missed.">            if (bonusSpawnTimer != null) {</span>
+<span class="fc" id="L199">                bonusSpawnTimer.stop();</span>
+            }
+<span class="fc" id="L201">            SoundManager.getInstance().playSound(&quot;win&quot;);</span>
+<span class="pc bpc" id="L202" title="1 of 2 branches missed.">            if (gameBoard != null) {</span>
+<span class="nc" id="L203">                SwingUtilities.invokeLater(() -&gt; {</span>
+<span class="nc" id="L204">                    gameBoard.showGameOverDialog();</span>
+<span class="nc" id="L205">                });</span>
+            }
+        }
+<span class="fc" id="L208">    }</span>
+
+    private boolean isPlayerPosition(int x, int y) {
+<span class="fc bfc" id="L211" title="All 4 branches covered.">        return x == playerX &amp;&amp; y == playerY;</span>
+    }
+
+    @Override
+    protected void collectIngredient(Ingredient ingredient) {
+<span class="fc" id="L216">        playerScore += ingredient.getValue();</span>
+<span class="fc bfc" id="L217" title="All 2 branches covered.">        if (ingredient instanceof BonusIngredient) {</span>
+<span class="fc" id="L218">            bonusRiceCollected = true;</span>
+<span class="fc" id="L219">        } else {</span>
+<span class="fc" id="L220">            incrementIngredientCount(ingredient.getName());</span>
+        }
+<span class="fc" id="L222">        ingredients.remove(ingredient);</span>
+<span class="fc" id="L223">        grid[ingredient.getPosition().getRow()][ingredient.getPosition().getCol()] = null;</span>
+<span class="fc" id="L224">    }</span>
+
+    public int getIngredientCount(String ingredient) {
+<span class="fc" id="L227">        return ingredientCounts.getOrDefault(ingredient.toLowerCase(), 0);</span>
+    }
+
+
+    @Override
+    protected int getTargetForIngredient(String ingredient) {
+<span class="fc bfc" id="L233" title="All 5 branches covered.">        switch (ingredient.toLowerCase()) {</span>
+<span class="fc" id="L234">            case &quot;dal&quot;: return DAL_TARGET;</span>
+<span class="fc" id="L235">            case &quot;potato&quot;: return POTATO_TARGET;</span>
+<span class="fc" id="L236">            case &quot;carrot&quot;: return CARROT_TARGET;</span>
+<span class="fc" id="L237">            case &quot;onion&quot;: return ONION_TARGET;</span>
+<span class="fc" id="L238">            default: return 0;</span>
+        }
+    }
+
+<span class="fc" id="L242">    public int getDalCollected() { return getIngredientCount(&quot;dal&quot;); }</span>
+<span class="fc" id="L243">    public int getPotatoCollected() { return getIngredientCount(&quot;potato&quot;); }</span>
+<span class="fc" id="L244">    public int getCarrotCollected() { return getIngredientCount(&quot;carrot&quot;); }</span>
+<span class="fc" id="L245">    public int getOnionCollected() { return getIngredientCount(&quot;onion&quot;); }</span>
+<span class="fc" id="L246">    public boolean hasBonusRice() { return bonusRiceCollected; }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

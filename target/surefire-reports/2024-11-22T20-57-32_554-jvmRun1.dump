@@ -1,0 +1,246 @@
+# Created at 2024-11-22T20:58:57.818
+Thread dump for process (1337@kurians-MacBook-Air.local) after 30 seconds shutdown timeout:
+"main" 
+   java.lang.Thread.State: TIMED_WAITING
+        at java.base@23.0.1/jdk.internal.misc.Unsafe.park(Native Method)
+        at java.base@23.0.1/java.util.concurrent.locks.LockSupport.parkNanos(LockSupport.java:269)
+        at java.base@23.0.1/java.util.concurrent.locks.AbstractQueuedSynchronizer.acquire(AbstractQueuedSynchronizer.java:756)
+        at java.base@23.0.1/java.util.concurrent.locks.AbstractQueuedSynchronizer.tryAcquireSharedNanos(AbstractQueuedSynchronizer.java:1126)
+        at java.base@23.0.1/java.util.concurrent.Semaphore.tryAcquire(Semaphore.java:415)
+        at app//org.apache.maven.surefire.booter.ForkedBooter.acquireOnePermit(ForkedBooter.java:524)
+        at app//org.apache.maven.surefire.booter.ForkedBooter.acknowledgedExit(ForkedBooter.java:374)
+        at app//org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:178)
+        at app//org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)
+        at app//org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)
+
+"Reference Handler" 
+   java.lang.Thread.State: RUNNABLE
+        at java.base@23.0.1/java.lang.ref.Reference.waitForReferencePendingList(Native Method)
+        at java.base@23.0.1/java.lang.ref.Reference.processPendingReferences(Reference.java:246)
+        at java.base@23.0.1/java.lang.ref.Reference$ReferenceHandler.run(Reference.java:208)
+
+"Finalizer" 
+   java.lang.Thread.State: WAITING
+        at java.base@23.0.1/java.lang.Object.wait0(Native Method)
+        at java.base@23.0.1/java.lang.Object.wait(Unknown Source)
+        at java.base@23.0.1/java.lang.Object.wait(Unknown Source)
+        at java.base@23.0.1/java.lang.ref.NativeReferenceQueue.await(NativeReferenceQueue.java:48)
+        at java.base@23.0.1/java.lang.ref.ReferenceQueue.remove0(ReferenceQueue.java:166)
+        at java.base@23.0.1/java.lang.ref.NativeReferenceQueue.remove(NativeReferenceQueue.java:89)
+        at java.base@23.0.1/java.lang.ref.Finalizer$FinalizerThread.run(Finalizer.java:173)
+
+"Signal Dispatcher" 
+   java.lang.Thread.State: RUNNABLE
+
+"Common-Cleaner" 
+   java.lang.Thread.State: TIMED_WAITING
+        at java.base@23.0.1/jdk.internal.misc.Unsafe.park(Native Method)
+        at java.base@23.0.1/java.util.concurrent.locks.LockSupport.parkNanos(LockSupport.java:269)
+        at java.base@23.0.1/java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:1852)
+        at java.base@23.0.1/java.lang.ref.ReferenceQueue.await(ReferenceQueue.java:79)
+        at java.base@23.0.1/java.lang.ref.ReferenceQueue.remove0(ReferenceQueue.java:151)
+        at java.base@23.0.1/java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:229)
+        at java.base@23.0.1/jdk.internal.ref.CleanerImpl.run(CleanerImpl.java:140)
+        at java.base@23.0.1/java.lang.Thread.runWith(Thread.java:1588)
+        at java.base@23.0.1/java.lang.Thread.run(Thread.java:1575)
+        at java.base@23.0.1/jdk.internal.misc.InnocuousThread.run(InnocuousThread.java:186)
+
+"Notification Thread" 
+   java.lang.Thread.State: RUNNABLE
+
+"AppKit Thread" 
+   java.lang.Thread.State: RUNNABLE
+
+"AWT-Shutdown" 
+   java.lang.Thread.State: WAITING
+        at java.base@23.0.1/java.lang.Object.wait0(Native Method)
+        at java.base@23.0.1/java.lang.Object.wait(Unknown Source)
+        at java.base@23.0.1/java.lang.Object.wait(Unknown Source)
+        at java.desktop@23.0.1/sun.awt.AWTAutoShutdown.run(AWTAutoShutdown.java:291)
+        at java.base@23.0.1/java.lang.Thread.runWith(Thread.java:1588)
+        at java.base@23.0.1/java.lang.Thread.run(Thread.java:1575)
+
+"Java2D Queue Flusher" 
+   java.lang.Thread.State: TIMED_WAITING
+        at java.base@23.0.1/java.lang.Object.wait0(Native Method)
+        at java.base@23.0.1/java.lang.Object.wait(Object.java:378)
+        at java.desktop@23.0.1/sun.java2d.metal.MTLRenderQueue$QueueFlusher.run(MTLRenderQueue.java:210)
+        at java.base@23.0.1/java.lang.Thread.runWith(Thread.java:1588)
+        at java.base@23.0.1/java.lang.Thread.run(Thread.java:1575)
+
+"Java2D Disposer" 
+   java.lang.Thread.State: WAITING
+        at java.base@23.0.1/jdk.internal.misc.Unsafe.park(Native Method)
+        at java.base@23.0.1/java.util.concurrent.locks.LockSupport.park(LockSupport.java:371)
+        at java.base@23.0.1/java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionNode.block(AbstractQueuedSynchronizer.java:519)
+        at java.base@23.0.1/java.util.concurrent.ForkJoinPool.unmanagedBlock(ForkJoinPool.java:4021)
+        at java.base@23.0.1/java.util.concurrent.ForkJoinPool.managedBlock(ForkJoinPool.java:3967)
+        at java.base@23.0.1/java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:1712)
+        at java.base@23.0.1/java.lang.ref.ReferenceQueue.await(ReferenceQueue.java:75)
+        at java.base@23.0.1/java.lang.ref.ReferenceQueue.remove0(ReferenceQueue.java:166)
+        at java.base@23.0.1/java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:246)
+        at java.desktop@23.0.1/sun.java2d.Disposer.run(Disposer.java:145)
+        at java.base@23.0.1/java.lang.Thread.runWith(Thread.java:1588)
+        at java.base@23.0.1/java.lang.Thread.run(Thread.java:1575)
+
+"Attach Listener" 
+   java.lang.Thread.State: RUNNABLE
+
+"Java Sound Event Dispatcher" 
+   java.lang.Thread.State: WAITING
+        at java.base@23.0.1/java.lang.Object.wait0(Native Method)
+        at java.base@23.0.1/java.lang.Object.wait(Unknown Source)
+        at java.base@23.0.1/java.lang.Object.wait(Unknown Source)
+        at java.desktop@23.0.1/com.sun.media.sound.EventDispatcher.dispatchEvents(EventDispatcher.java:173)
+        at java.desktop@23.0.1/com.sun.media.sound.EventDispatcher.run(EventDispatcher.java:212)
+        at java.base@23.0.1/java.lang.Thread.runWith(Thread.java:1588)
+        at java.base@23.0.1/java.lang.Thread.run(Thread.java:1575)
+
+"Direct Clip" 
+   java.lang.Thread.State: WAITING
+        at java.base@23.0.1/java.lang.Object.wait0(Native Method)
+        at java.base@23.0.1/java.lang.Object.wait(Unknown Source)
+        at java.base@23.0.1/java.lang.Object.wait(Unknown Source)
+        at java.desktop@23.0.1/com.sun.media.sound.DirectAudioDevice$DirectClip.run(DirectAudioDevice.java:1291)
+        at java.base@23.0.1/java.lang.Thread.runWith(Thread.java:1588)
+        at java.base@23.0.1/java.lang.Thread.run(Thread.java:1575)
+
+"Direct Clip" 
+   java.lang.Thread.State: WAITING
+        at java.base@23.0.1/java.lang.Object.wait0(Native Method)
+        at java.base@23.0.1/java.lang.Object.wait(Unknown Source)
+        at java.base@23.0.1/java.lang.Object.wait(Unknown Source)
+        at java.desktop@23.0.1/com.sun.media.sound.DirectAudioDevice$DirectClip.run(DirectAudioDevice.java:1291)
+        at java.base@23.0.1/java.lang.Thread.runWith(Thread.java:1588)
+        at java.base@23.0.1/java.lang.Thread.run(Thread.java:1575)
+
+"Direct Clip" 
+   java.lang.Thread.State: WAITING
+        at java.base@23.0.1/java.lang.Object.wait0(Native Method)
+        at java.base@23.0.1/java.lang.Object.wait(Unknown Source)
+        at java.base@23.0.1/java.lang.Object.wait(Unknown Source)
+        at java.desktop@23.0.1/com.sun.media.sound.DirectAudioDevice$DirectClip.run(DirectAudioDevice.java:1291)
+        at java.base@23.0.1/java.lang.Thread.runWith(Thread.java:1588)
+        at java.base@23.0.1/java.lang.Thread.run(Thread.java:1575)
+
+"Direct Clip" 
+   java.lang.Thread.State: WAITING
+        at java.base@23.0.1/java.lang.Object.wait0(Native Method)
+        at java.base@23.0.1/java.lang.Object.wait(Unknown Source)
+        at java.base@23.0.1/java.lang.Object.wait(Unknown Source)
+        at java.desktop@23.0.1/com.sun.media.sound.DirectAudioDevice$DirectClip.run(DirectAudioDevice.java:1291)
+        at java.base@23.0.1/java.lang.Thread.runWith(Thread.java:1588)
+        at java.base@23.0.1/java.lang.Thread.run(Thread.java:1575)
+
+"Direct Clip" 
+   java.lang.Thread.State: WAITING
+        at java.base@23.0.1/java.lang.Object.wait0(Native Method)
+        at java.base@23.0.1/java.lang.Object.wait(Unknown Source)
+        at java.base@23.0.1/java.lang.Object.wait(Unknown Source)
+        at java.desktop@23.0.1/com.sun.media.sound.DirectAudioDevice$DirectClip.run(DirectAudioDevice.java:1291)
+        at java.base@23.0.1/java.lang.Thread.runWith(Thread.java:1588)
+        at java.base@23.0.1/java.lang.Thread.run(Thread.java:1575)
+
+"Direct Clip" 
+   java.lang.Thread.State: WAITING
+        at java.base@23.0.1/java.lang.Object.wait0(Native Method)
+        at java.base@23.0.1/java.lang.Object.wait(Unknown Source)
+        at java.base@23.0.1/java.lang.Object.wait(Unknown Source)
+        at java.desktop@23.0.1/com.sun.media.sound.DirectAudioDevice$DirectClip.run(DirectAudioDevice.java:1291)
+        at java.base@23.0.1/java.lang.Thread.runWith(Thread.java:1588)
+        at java.base@23.0.1/java.lang.Thread.run(Thread.java:1575)
+
+"Direct Clip" 
+   java.lang.Thread.State: TIMED_WAITING
+        at java.base@23.0.1/java.lang.Object.wait0(Native Method)
+        at java.base@23.0.1/java.lang.Object.wait(Object.java:378)
+        at java.desktop@23.0.1/com.sun.media.sound.DirectAudioDevice$DirectDL.write(DirectAudioDevice.java:732)
+        at java.desktop@23.0.1/com.sun.media.sound.DirectAudioDevice$DirectClip.run(DirectAudioDevice.java:1312)
+        at java.base@23.0.1/java.lang.Thread.runWith(Thread.java:1588)
+        at java.base@23.0.1/java.lang.Thread.run(Thread.java:1575)
+
+"Direct Clip" 
+   java.lang.Thread.State: WAITING
+        at java.base@23.0.1/java.lang.Object.wait0(Native Method)
+        at java.base@23.0.1/java.lang.Object.wait(Unknown Source)
+        at java.base@23.0.1/java.lang.Object.wait(Unknown Source)
+        at java.desktop@23.0.1/com.sun.media.sound.DirectAudioDevice$DirectClip.run(DirectAudioDevice.java:1291)
+        at java.base@23.0.1/java.lang.Thread.runWith(Thread.java:1588)
+        at java.base@23.0.1/java.lang.Thread.run(Thread.java:1575)
+
+"Direct Clip" 
+   java.lang.Thread.State: WAITING
+        at java.base@23.0.1/java.lang.Object.wait0(Native Method)
+        at java.base@23.0.1/java.lang.Object.wait(Unknown Source)
+        at java.base@23.0.1/java.lang.Object.wait(Unknown Source)
+        at java.desktop@23.0.1/com.sun.media.sound.DirectAudioDevice$DirectClip.run(DirectAudioDevice.java:1291)
+        at java.base@23.0.1/java.lang.Thread.runWith(Thread.java:1588)
+        at java.base@23.0.1/java.lang.Thread.run(Thread.java:1575)
+
+"Direct Clip" 
+   java.lang.Thread.State: WAITING
+        at java.base@23.0.1/java.lang.Object.wait0(Native Method)
+        at java.base@23.0.1/java.lang.Object.wait(Unknown Source)
+        at java.base@23.0.1/java.lang.Object.wait(Unknown Source)
+        at java.desktop@23.0.1/com.sun.media.sound.DirectAudioDevice$DirectClip.run(DirectAudioDevice.java:1291)
+        at java.base@23.0.1/java.lang.Thread.runWith(Thread.java:1588)
+        at java.base@23.0.1/java.lang.Thread.run(Thread.java:1575)
+
+"Direct Clip" 
+   java.lang.Thread.State: WAITING
+        at java.base@23.0.1/java.lang.Object.wait0(Native Method)
+        at java.base@23.0.1/java.lang.Object.wait(Unknown Source)
+        at java.base@23.0.1/java.lang.Object.wait(Unknown Source)
+        at java.desktop@23.0.1/com.sun.media.sound.DirectAudioDevice$DirectClip.run(DirectAudioDevice.java:1291)
+        at java.base@23.0.1/java.lang.Thread.runWith(Thread.java:1588)
+        at java.base@23.0.1/java.lang.Thread.run(Thread.java:1575)
+
+"surefire-forkedjvm-stream-flusher" 
+   java.lang.Thread.State: WAITING
+        at java.base@23.0.1/jdk.internal.misc.Unsafe.park(Native Method)
+        at java.base@23.0.1/java.util.concurrent.locks.LockSupport.park(LockSupport.java:371)
+        at java.base@23.0.1/java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionNode.block(AbstractQueuedSynchronizer.java:519)
+        at java.base@23.0.1/java.util.concurrent.ForkJoinPool.unmanagedBlock(ForkJoinPool.java:4021)
+        at java.base@23.0.1/java.util.concurrent.ForkJoinPool.managedBlock(ForkJoinPool.java:3967)
+        at java.base@23.0.1/java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:1712)
+        at java.base@23.0.1/java.util.concurrent.ScheduledThreadPoolExecutor$DelayedWorkQueue.take(ScheduledThreadPoolExecutor.java:1170)
+        at java.base@23.0.1/java.util.concurrent.ScheduledThreadPoolExecutor$DelayedWorkQueue.take(ScheduledThreadPoolExecutor.java:899)
+        at java.base@23.0.1/java.util.concurrent.ThreadPoolExecutor.getTask(ThreadPoolExecutor.java:1070)
+        at java.base@23.0.1/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1130)
+        at java.base@23.0.1/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+        at java.base@23.0.1/java.lang.Thread.runWith(Thread.java:1588)
+        at java.base@23.0.1/java.lang.Thread.run(Thread.java:1575)
+
+"AWT-EventQueue-0" 
+   java.lang.Thread.State: WAITING
+        at java.base@23.0.1/jdk.internal.misc.Unsafe.park(Native Method)
+        at java.base@23.0.1/java.util.concurrent.locks.LockSupport.park(LockSupport.java:371)
+        at java.base@23.0.1/java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionNode.block(AbstractQueuedSynchronizer.java:519)
+        at java.base@23.0.1/java.util.concurrent.ForkJoinPool.unmanagedBlock(ForkJoinPool.java:4021)
+        at java.base@23.0.1/java.util.concurrent.ForkJoinPool.managedBlock(ForkJoinPool.java:3967)
+        at java.base@23.0.1/java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:1712)
+        at java.desktop@23.0.1/java.awt.EventQueue.getNextEvent(EventQueue.java:565)
+        at java.desktop@23.0.1/java.awt.EventDispatchThread.pumpOneEventForFilters(EventDispatchThread.java:190)
+        at java.desktop@23.0.1/java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:124)
+        at java.desktop@23.0.1/java.awt.EventDispatchThread.pumpEventsForHierarchy(EventDispatchThread.java:113)
+        at java.desktop@23.0.1/java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:109)
+        at java.desktop@23.0.1/java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:101)
+        at java.desktop@23.0.1/java.awt.EventDispatchThread.run(EventDispatchThread.java:90)
+
+"surefire-forkedjvm-last-ditch-daemon-shutdown-thread-30s" 
+   java.lang.Thread.State: RUNNABLE
+        at java.management@23.0.1/sun.management.ThreadImpl.getThreadInfo1(Native Method)
+        at java.management@23.0.1/sun.management.ThreadImpl.getThreadInfo(ThreadImpl.java:187)
+        at app//org.apache.maven.surefire.booter.ForkedBooter.generateThreadDump(ForkedBooter.java:579)
+        at app//org.apache.maven.surefire.booter.ForkedBooter.access$600(ForkedBooter.java:79)
+        at app//org.apache.maven.surefire.booter.ForkedBooter$7.run(ForkedBooter.java:424)
+        at java.base@23.0.1/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:572)
+        at java.base@23.0.1/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+        at java.base@23.0.1/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:304)
+        at java.base@23.0.1/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+        at java.base@23.0.1/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+        at java.base@23.0.1/java.lang.Thread.runWith(Thread.java:1588)
+        at java.base@23.0.1/java.lang.Thread.run(Thread.java:1575)
+
+
+

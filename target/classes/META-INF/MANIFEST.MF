@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Build-Jdk-Spec: 22
+Main-Class: CMPT276.Group22.Main
+Created-By: Maven Integration for Eclipse
+

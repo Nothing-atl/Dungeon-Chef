@@ -1,0 +1,19 @@
+-------------------------------------------------------------------------------
+Test set: CMPT276.Group22.GameBoardTest
+-------------------------------------------------------------------------------
+Tests run: 5, Failures: 0, Errors: 5, Skipped: 0, Time elapsed: 2.756 s <<< FAILURE! -- in CMPT276.Group22.GameBoardTest
+CMPT276.Group22.GameBoardTest.testGameOverDialog -- Time elapsed: 0.552 s <<< ERROR!
+java.lang.OutOfMemoryError: Java heap space
+
+CMPT276.Group22.GameBoardTest.testUpdateIngredientDisplayReflection -- Time elapsed: 0.691 s <<< ERROR!
+java.lang.OutOfMemoryError: Java heap space
+
+CMPT276.Group22.GameBoardTest.testPauseAndResumeTimer -- Time elapsed: 0.643 s <<< ERROR!
+java.lang.OutOfMemoryError: Java heap space
+
+CMPT276.Group22.GameBoardTest.testGameBoardInitialization -- Time elapsed: 0.441 s <<< ERROR!
+java.lang.OutOfMemoryError: Java heap space
+
+CMPT276.Group22.GameBoardTest.testUpdateTimerDisplay -- Time elapsed: 0.426 s <<< ERROR!
+java.lang.OutOfMemoryError: Java heap space
+

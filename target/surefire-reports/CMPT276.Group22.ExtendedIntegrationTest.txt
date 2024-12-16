@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: CMPT276.Group22.ExtendedIntegrationTest
+-------------------------------------------------------------------------------
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.342 s -- in CMPT276.Group22.ExtendedIntegrationTest
